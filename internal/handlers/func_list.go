@@ -13,9 +13,13 @@ func ListFunc(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res := make([]string, 0)
-	l := utils.GetFileList("static/playbooks")
+	l := utils.GetFileList("ansible")
 	for _, name := range l {
 		if utils.CheckExtension(name, `.yml`) {
+			// 초기화에 필요한 yml이므로 제외
+			if name == "requirements.yml" || name == "init.yml" {
+				continue
+			}
 			res = append(res, utils.TruncationExtension(name))
 		}
 	}

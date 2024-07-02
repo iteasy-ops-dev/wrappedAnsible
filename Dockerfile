@@ -21,7 +21,7 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get update; \
     apt-get install -y gcc python3; \
     apt-get install -y python3-pip; \
-    apt-get install -y curl net-tools vim; \
+    apt-get install -y curl net-tools vim git; \
     apt-get install -y openssh-server sshpass; \
     apt-get clean all
 RUN pip3 install --upgrade pip
@@ -32,7 +32,7 @@ RUN ansible-galaxy collection install community.general
 
 WORKDIR /root
 COPY --from=build /go-app /go-app
-COPY static static
+COPY ansible ansible
 EXPOSE 8080
 
 ENTRYPOINT ["/go-app"]

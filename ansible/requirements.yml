@@ -1,0 +1,3 @@
+- src: https://github.com/iteasy-ops-dev/ansible.roles.chage_password.git
+  scm: git
+  version: main

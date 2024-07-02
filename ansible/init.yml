@@ -18,7 +18,21 @@
       args:
         creates: ~/.ssh/control_node
 
-    - name: Install geerlingguy.apache role
-      ansible.builtin.command: ansible-galaxy role install geerlingguy.apache
-      args:
-        creates: ~/.ansible/roles/geerlingguy.apache
+    - name: Update apt
+      ansible.builtin.shell: apt-get update -y
+
+    - name: Install necessary packages
+      ansible.builtin.apt:
+        pkg:
+        - gcc
+        - python3
+        - python3-pip
+        - curl
+        - net-tools
+        - vim
+        - git
+        - openssh-server
+        - sshpass
+
+    - name: Install roles
+      ansible.builtin.command: ansible-galaxy install --force --ignore-errors -r requirements.yml -p roles

@@ -57,6 +57,7 @@ func (e *extendAnsible) createExtraVars() string {
 	for i, k := range e.Options {
 		tmpString += fmt.Sprintf(`%s=%s `, i, k)
 	}
+
 	return tmpString
 }
 
@@ -64,14 +65,11 @@ func (e *extendAnsible) excute() []byte {
 	status := true
 	e.createInventory()
 	e.createPlaybook()
+
 	fmt.Printf(
-		"Name: %s\nAccount: %s\nInventory: %s\nPlaybook: %s\n",
-		e.Name,
-		e.Account,
-		e.inventory,
-		e.playBook,
+		"⚙️ Used Playbook: %s\n⚙️ Extra Vars: %s\n",
+		e.playBook, e.createExtraVars(),
 	)
-	fmt.Printf("Extra Vars: %s\n", e.createExtraVars())
 
 	cmd := exec.Command(
 		config.ANSIBLE_PLAYBOOK,
@@ -81,7 +79,7 @@ func (e *extendAnsible) excute() []byte {
 	)
 	stdoutStderr, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("ERROR: stdoutStderr: %s\n", err)
+		fmt.Printf("❌ ERROR: stdoutStderr: %s\n", err)
 		status = false
 	}
 
@@ -98,24 +96,6 @@ func (e *extendAnsible) excute() []byte {
 		Status:  status,
 		Payload: string(stdoutStderr),
 	}
-
-	// fmt.Printf("%s\n", stdoutStderr)
-	// TODO: init 분기하지 말고 초기화 함수 따로 만들기
-	// if e.Type != "init" {
-	// 	o := Output(stdoutStderr).Debug(status)
-	// 	b, _ := json.Marshal(o)
-	// fmt.Printf("ID: %s\n", o.ID)
-	// fmt.Printf("NAME: %s\n", o.Name)
-	// for _, r := range o.Returns {
-	// 	fmt.Printf("Name: %s\n", r.Name)
-	// 	fmt.Printf("Host: %s\n", r.Host)
-	// 	fmt.Printf("Action: %s\n", r.Action)
-	// 	fmt.Printf("Msg: %s\n", r.Msg)
-	// 	fmt.Printf("Failed: %t\n", r.Failed)
-	// 	fmt.Printf("Results: %s\n", r.Results)
-	// }
-	// 	return b
-	// }
 
 	b, _ := json.Marshal(s)
 
