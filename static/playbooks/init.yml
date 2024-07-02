@@ -1,0 +1,24 @@
+---
+- name: 앤서블 초기화
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Set up .ansible.cfg
+      ansible.builtin.blockinfile:
+        path: ~/.ansible.cfg
+        create: true
+        block: |
+          [defaults]
+          host_key_checking=False
+          nocows=true
+          # stdout_callback=json
+
+    - name: SSH 키 페어 생성 (이미 존재하는 경우 생략)
+      ansible.builtin.command: ssh-keygen -t rsa -f ~/.ssh/control_node -N ""
+      args:
+        creates: ~/.ssh/control_node
+
+    - name: Install geerlingguy.apache role
+      ansible.builtin.command: ansible-galaxy role install geerlingguy.apache
+      args:
+        creates: ~/.ansible/roles/geerlingguy.apache

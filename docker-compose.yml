@@ -1,0 +1,19 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+services:
+  # mongo:
+  #   image: mongo
+  #   restart: always
+  #   ports:
+  #     - 27017:27017
+
+  ansible:
+    build: 
+      context: .
+    image: ansible
+    container_name: ansible
+    environment:
+      - TZ=Asia/Seoul
+    ports:
+      - 8080:8080

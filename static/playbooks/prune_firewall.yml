@@ -1,0 +1,64 @@
+---
+- name: 사용하지 않는 포트를 찾아서 방화벽 허용 해제
+  hosts: all
+  become: true
+
+  tasks:
+    - name: 운영 체제 정보 수집
+      ansible.builtin.setup:
+
+    # - name: firewalld 설치 확인 및 설치 (Debian 계열)
+    #   package:
+    #     name: firewalld
+    #     state: present
+    #   when: ansible_distribution in ['Debian', 'Ubuntu']
+
+    # - name: firewalld 설치 확인 및 설치 (Red Hat 계열)
+    #   package:
+    #     name: firewalld
+    #     state: present
+    #   when: ansible_distribution in ['RedHat', 'CentOS', 'Fedora']
+
+    # - name: firewalld 시작 및 활성화 (Debian 계열)
+    #   service:
+    #     name: firewalld
+    #     state: started
+    #     enabled: true
+    #   when: ansible_distribution in ['Debian', 'Ubuntu']
+
+    # - name: firewalld 시작 및 활성화 (Red Hat 계열)
+    #   service:
+    #     name: firewalld
+    #     state: started
+    #     enabled: true
+    #   when: ansible_distribution in ['RedHat', 'CentOS', 'Fedora']
+
+    - name: 현재 열려 있는 포트 및 프로토콜 수집
+      shell: "firewall-cmd --list-ports"
+      register: firewalld_ports
+
+    - name: 현재 실행 중인 서비스와 연결된 포트 수집 (TCP 및 UDP)
+      shell: "ss -tuln | awk '{print $1, $5}' | grep -Eo '^(tcp|udp).*:([0-9]+)$' | sort -u"
+      register: active_ports
+
+    - name: 실행 중인 포트/프로토콜 목록 생성
+      set_fact:
+        used_ports: "{{ active_ports.stdout_lines | map('regex_replace', '^(tcp|udp).*:([0-9]+)$', '\\2/\\1') | list }}"
+
+    - name: 사용되지 않는 포트 추출
+      set_fact:
+        unused_ports: "{{ firewalld_ports.stdout.split() | difference(used_ports) }}"
+
+    - name: 사용되지 않는 포트 출력
+      debug:
+        msg: "사용되지 않는 포트: {{ unused_ports }}"
+
+    - name: 사용되지 않는 포트를 방화벽에서 제거
+      ansible.builtin.shell:
+        cmd: "firewall-cmd --remove-port={{ item }} --permanent"
+      loop: "{{ unused_ports }}"
+      when: unused_ports | length > 0
+
+    - name: 방화벽 규칙 적용
+      ansible.builtin.shell:
+        cmd: "firewall-cmd --reload"
