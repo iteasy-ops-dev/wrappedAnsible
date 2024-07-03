@@ -11,6 +11,7 @@
           [defaults]
           host_key_checking=False
           nocows=true
+          deprecation_warnings=False
           # stdout_callback=json
 
     - name: SSH 키 페어 생성 (이미 존재하는 경우 생략)
