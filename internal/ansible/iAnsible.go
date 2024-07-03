@@ -3,5 +3,5 @@ package ansible
 type iAnsible interface {
 	createInventory()
 	createPlaybook()
-	excute() []byte
+	excute() ([]byte, error)
 }
