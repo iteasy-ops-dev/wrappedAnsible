@@ -14,4 +14,4 @@ const PATTERN_OF_ANSIBLE_YML = "ansible-*.yml"
 // const FLAG_INVENTORY = "inventory"
 // const FLAG_PLAYBOOK = "playbook"
 
-const PATH_STATIC_PLAYBOOK = "ansible/"
+const PATH_STATIC_PLAYBOOK = "ansible"
