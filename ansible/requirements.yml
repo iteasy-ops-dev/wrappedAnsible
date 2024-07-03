@@ -1,3 +1,7 @@
-- src: https://github.com/iteasy-ops-dev/ansible.roles.chage_password.git
+- src: https://github.com/iteasy-ops-dev/ansible.roles.change_password.git
+  scm: git
+  version: main
+  
+- src: https://github.com/iteasy-ops-dev/ansible.roles.change_ssh_port.git
   scm: git
   version: main
