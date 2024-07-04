@@ -5,3 +5,7 @@
 - src: https://github.com/iteasy-ops-dev/ansible.roles.change_ssh_port.git
   scm: git
   version: main
+
+- src: https://github.com/geerlingguy/ansible-role-apache.git
+  scm: git
+  version: master
