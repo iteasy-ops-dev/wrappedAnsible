@@ -20,25 +20,33 @@ var (
 )
 
 func init() {
-	var g errgroup.Group
+	fmt.Println("⚙️ Wrapped Ansible Server Init.")
 	ctx, cancel := context.WithCancel(context.Background())
+	g, ctx := errgroup.WithContext(ctx)
 	defer cancel()
 
-	fmt.Println("⚙️ Wrapped Ansible Server Init.")
 	initJsonData := `{
 			"type": "init",
 			"name": "서버 초기화 실행.",
 		  "options": {}
 	  }
 	`
+	init := ansible.GennerateInitType{
+		Ctx:      ctx,
+		JsonData: []byte(initJsonData),
+	}
 
-	// var payload []byte
 	g.Go(func() error {
 		var err error
-		initAnsible := ansible.GetAnsibleFromFactory(ctx, []byte(initJsonData))
-		// payload, err = ansible.Excuter(initAnsible)
+		initAnsible, err := ansible.GetAnsibleFromFactory(init)
+		if err != nil {
+			return fmt.Errorf("failed to get Ansible from factory: %w", err)
+		}
 		_, err = ansible.Excuter(initAnsible)
-		return err
+		if err != nil {
+			return fmt.Errorf("failed to execute Ansible: %w", err)
+		}
+		return nil
 	})
 
 	if err := g.Wait(); err != nil {
