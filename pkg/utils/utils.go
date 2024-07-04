@@ -110,3 +110,7 @@ func CheckExtension(filename, pattern string) bool {
 	// pattern이 확장자인지 확인하는 절차 필요
 	return strings.Contains(filename, pattern)
 }
+
+func RemoveFile(path string) error {
+	return os.Remove(path)
+}

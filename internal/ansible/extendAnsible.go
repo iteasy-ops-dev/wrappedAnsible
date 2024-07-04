@@ -110,6 +110,7 @@ func (e *extendAnsible) excute() ([]byte, error) {
 	status := true
 	e.createInventory()
 	e.createPlaybook()
+	defer utils.RemoveFile(e.inventory)
 
 	fmt.Printf(
 		"⚙️ Used Playbook: %s\n⚙️ Extra Vars: %s\n",
