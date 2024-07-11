@@ -24,7 +24,7 @@ type extendAnsible struct {
 	inventory   string   // file.Name()
 	playBook    string   // file.Name()
 
-	Options map[string]string
+	Options map[string]interface{}
 }
 
 func (e *extendAnsible) generateInventoryPayload() []byte {
@@ -55,12 +55,40 @@ func (e *extendAnsible) createPlaybook() {
 }
 
 func (e *extendAnsible) createExtraVars() string {
-	var tmpString string
-	for i, k := range e.Options {
-		tmpString += fmt.Sprintf(`%s=%s `, i, k)
-	}
+	// var tmpString string
+	// for i, k := range e.Options {
+	// 	tmpString += fmt.Sprintf(`%s=%s `, i, k)
+	// }
 
-	return tmpString
+	// return tmpString
+	// var tmpString string
+	// for i, k := range e.Options {
+	// 	var valueStr string
+	// 	switch value := k.(type) {
+	// 	case bool:
+	// 		valueStr = fmt.Sprintf("%t", value)
+	// 	case string:
+	// 		valueStr = value
+	// 	case []string:
+	// 		// 배열 요소를 따옴표로 묶어서 쉼표로 구분된 문자열로 변환하고, 앞뒤에 대괄호를 추가
+	// 		var quotedValues []string
+	// 		for _, v := range value {
+	// 			quotedValues = append(quotedValues, fmt.Sprintf(`"%s"`, v))
+	// 		}
+	// 		valueStr = fmt.Sprintf("[%s]", strings.Join(quotedValues, ","))
+	// 	default:
+	// 		valueStr = fmt.Sprintf("%v", value)
+	// 	}
+	// 	tmpString += fmt.Sprintf(`%s=%s `, i, valueStr)
+	// }
+
+	// return tmpString
+	// 꿀팁: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html
+	jsonString, err := json.Marshal(e.Options)
+	if err != nil {
+		fmt.Println("JSON marshaling failed:", err)
+	}
+	return string(jsonString)
 }
 
 // func (e *extendAnsible) excute() ([]byte, error) {

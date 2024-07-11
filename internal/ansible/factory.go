@@ -53,7 +53,7 @@ func parseJsonRequest(v GennerateHttpRequestType) (iAnsible, error) {
 func parseMultipartRequest(v GennerateHttpRequestType) (iAnsible, error) {
 	e := extendAnsible{
 		Ctx:     v.Ctx,
-		Options: make(map[string]string),
+		Options: make(map[string]interface{}),
 	}
 
 	// Form values
