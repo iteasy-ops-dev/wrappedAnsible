@@ -54,6 +54,7 @@ func GenerateTempFile(payload []byte, namePattern string) (*os.File, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer tmp.Close()
 
 	if _, err := tmp.Write(payload); err != nil {
 		log.Fatal(err)
