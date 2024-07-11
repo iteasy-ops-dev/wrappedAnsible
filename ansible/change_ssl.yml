@@ -4,32 +4,45 @@
   become: true
   vars:
     domain: ""  # 도메인
-    # src_cert_file: ""  # 새로운 인증서 파일 경로
-    # src_key_file: ""  # 새로운 키 파일 경로
-    # src_chain_file: ""  # 새로운 체인 파일 경로
-    # backup_date: "{{ ansible_date_time.date }}"
-    # cert_file_path: "/etc/httpd/ssl_{{ backup_date }}/{{ DOMAIN }}__crt.pem"
-    # key_file_path: "/etc/httpd/ssl_{{ backup_date }}/{{ DOMAIN }}__key.pem"
-    # chain_file_path: "/etc/httpd/ssl_{{ backup_date }}/{{ DOMAIN }}__chain.pem"
+    src_cert_file: ""  # 새로운 인증서 파일 경로
+    src_key_file: ""  # 새로운 키 파일 경로
+    src_chain_file: ""  # 새로운 체인 파일 경로
+    backup_date: "{{ ansible_date_time.date }}"
+    cert_file_path: "/etc/httpd/ssl_{{ backup_date }}/{{ domain }}__crt.pem"
+    key_file_path: "/etc/httpd/ssl_{{ backup_date }}/{{ domain }}__key.pem"
+    chain_file_path: "/etc/httpd/ssl_{{ backup_date }}/{{ domain }}__chain.pem"
 
   tasks:
-    - name: Find SSL configuration files
-      ansible.builtin.find:
-        paths: /etc/apache2
-        patterns: "*.conf"
-        recurse: yes
-        patterns_exclude: "*.bak"  # 필요에 따라 추가적인 exclude 패턴을 지정할 수 있습니다.
-      register: ssl_conf_files
-
-    - name: Extract first SSL configuration file path
-      ansible.builtin.set_fact:
-        ssl_conf_file: "{{ ssl_conf_files.files | first | default({}) }}"
-      when: ssl_conf_files.files | length > 0
-
-    - name: Print the SSL configuration file path
+    - name: output options
       ansible.builtin.debug:
-        msg: "SSL configuration file path: {{ ssl_conf_file.path }}"
-      when: ssl_conf_file.path is defined
+        msg: |
+          domain: "{{ domain }}"
+          src_cert_file: "{{ src_cert_file }}"
+          src_key_file: "{{ src_key_file }}"
+          src_chain_file: "{{ src_chain_file }}"
+          backup_date: "{{ backup_date }}"
+          cert_file_path: "{{ cert_file_path }}"
+          key_file_path: "{{ key_file_path }}"
+          chain_file_path: "{{ chain_file_path }}"
+       
+        
+    # - name: Find SSL configuration files
+    #   ansible.builtin.find:
+    #     paths: /etc/apache2
+    #     patterns: "*.conf"
+    #     recurse: yes
+    #     patterns_exclude: "*.bak"  # 필요에 따라 추가적인 exclude 패턴을 지정할 수 있습니다.
+    #   register: ssl_conf_files
+
+    # - name: Extract first SSL configuration file path
+    #   ansible.builtin.set_fact:
+    #     ssl_conf_file: "{{ ssl_conf_files.files | first | default({}) }}"
+    #   when: ssl_conf_files.files | length > 0
+
+    # - name: Print the SSL configuration file path
+    #   ansible.builtin.debug:
+    #     msg: "SSL configuration file path: {{ ssl_conf_file.path }}"
+    #   when: ssl_conf_file.path is defined
     # - name: SSL 구성 파일 찾기
     #   shell: grep -rEl "^SSLCertificateFile.*{{ domain }}" --include="*ssl*.conf" /
     #   register: ssl_conf_files
