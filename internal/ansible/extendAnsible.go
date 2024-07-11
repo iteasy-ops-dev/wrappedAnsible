@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"time"
 
 	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/pkg/utils"
@@ -55,34 +56,6 @@ func (e *extendAnsible) createPlaybook() {
 }
 
 func (e *extendAnsible) createExtraVars() string {
-	// var tmpString string
-	// for i, k := range e.Options {
-	// 	tmpString += fmt.Sprintf(`%s=%s `, i, k)
-	// }
-
-	// return tmpString
-	// var tmpString string
-	// for i, k := range e.Options {
-	// 	var valueStr string
-	// 	switch value := k.(type) {
-	// 	case bool:
-	// 		valueStr = fmt.Sprintf("%t", value)
-	// 	case string:
-	// 		valueStr = value
-	// 	case []string:
-	// 		// 배열 요소를 따옴표로 묶어서 쉼표로 구분된 문자열로 변환하고, 앞뒤에 대괄호를 추가
-	// 		var quotedValues []string
-	// 		for _, v := range value {
-	// 			quotedValues = append(quotedValues, fmt.Sprintf(`"%s"`, v))
-	// 		}
-	// 		valueStr = fmt.Sprintf("[%s]", strings.Join(quotedValues, ","))
-	// 	default:
-	// 		valueStr = fmt.Sprintf("%v", value)
-	// 	}
-	// 	tmpString += fmt.Sprintf(`%s=%s `, i, valueStr)
-	// }
-
-	// return tmpString
 	// 꿀팁: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html
 	jsonString, err := json.Marshal(e.Options)
 	if err != nil {
@@ -91,51 +64,9 @@ func (e *extendAnsible) createExtraVars() string {
 	return string(jsonString)
 }
 
-// func (e *extendAnsible) excute() ([]byte, error) {
-// 	status := true
-// 	e.createInventory()
-// 	e.createPlaybook()
-
-// 	fmt.Printf(
-// 		"⚙️ Used Playbook: %s\n⚙️ Extra Vars: %s\n",
-// 		e.playBook, e.createExtraVars(),
-// 	)
-
-// 	cmd := exec.Command(
-// 		config.ANSIBLE_PLAYBOOK,
-// 		e.playBook,
-// 		config.OPTION_INVENTORY, e.inventory,
-// 		config.OPTION_EXTRA_VARS, e.createExtraVars(),
-// 	)
-
-// 	stdoutStderr, err := cmd.CombinedOutput()
-
-// 	if err != nil {
-// 		fmt.Printf("❌ ERROR: stdoutStderr: %s\n", err)
-// 		status = false
-// 	}
-
-// 	type Res struct {
-// 		Type    string
-// 		Name    string
-// 		Status  bool
-// 		Payload string
-// 	}
-
-// 	s := Res{
-// 		Type:    e.Type,
-// 		Name:    e.Name,
-// 		Status:  status,
-// 		Payload: string(stdoutStderr),
-// 	}
-
-// 	b, _ := json.Marshal(s)
-
-// 	return b, nil
-// }
-
 func (e *extendAnsible) excute() ([]byte, error) {
 	status := true
+	start := time.Now()
 	e.createInventory()
 	e.createPlaybook()
 	defer utils.RemoveFile(e.inventory)
@@ -175,19 +106,22 @@ func (e *extendAnsible) excute() ([]byte, error) {
 		fmt.Printf("❌ ERROR: stdoutStderr: %s\n", err)
 		status = false
 	}
+	duration := time.Since(start)
 
 	type Res struct {
-		Type    string
-		Name    string
-		Status  bool
-		Payload string
+		Type     string
+		Name     string
+		Status   bool
+		Payload  string
+		Duration time.Duration // int64
 	}
 
 	s := Res{
-		Type:    e.Type,
-		Name:    e.Name,
-		Status:  status,
-		Payload: string(stdoutStderr),
+		Type:     e.Type,
+		Name:     e.Name,
+		Status:   status,
+		Payload:  string(stdoutStderr),
+		Duration: time.Duration(duration.Seconds()),
 	}
 
 	b, _ := json.Marshal(s)
