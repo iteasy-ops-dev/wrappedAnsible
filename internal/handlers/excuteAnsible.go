@@ -3,9 +3,11 @@ package handlers
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 	"iteasy.wrappedAnsible/internal/ansible"
+	"iteasy.wrappedAnsible/internal/model"
 )
 
 func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
@@ -14,8 +16,20 @@ func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Content-Type: ")
-	fmt.Println(r.Header.Get("Content-Type"))
+	contentType := r.Header.Get("Content-Type")
+
+	if strings.Contains(contentType, "multipart/form-data") {
+		err := r.ParseMultipartForm(10 << 20) // 10MB max memory
+		if err != nil {
+			http.Error(w, "Unable to parse form", http.StatusBadRequest)
+			return
+		}
+
+		if err := r.ParseForm(); err != nil {
+			http.Error(w, "Failed to parse form data", http.StatusBadRequest)
+			return
+		}
+	}
 
 	ctx := r.Context()
 	g, ctx := errgroup.WithContext(ctx)
@@ -25,13 +39,15 @@ func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
 		R:   r,
 	}
 
-	var payload []byte
+	var payload *ansible.AnsibleProcessStatus
 	g.Go(func() error {
 		e, err := ansible.GetAnsibleFromFactory(p)
 		if err != nil {
 			return fmt.Errorf("failed to get Ansible from factory: %w", err)
 		}
 		payload, err = ansible.Excuter(e)
+		m := model.NewAnsibleProcessStatus(payload)
+		m.Put()
 		if err != nil {
 			return fmt.Errorf("failed to execute Ansible: %w", err)
 		}
@@ -45,7 +61,7 @@ func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(payload); err != nil {
+	if _, err := w.Write(payload.ToBytes()); err != nil {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}

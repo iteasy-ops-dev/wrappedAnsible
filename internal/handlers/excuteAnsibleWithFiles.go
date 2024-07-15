@@ -6,6 +6,7 @@ import (
 
 	"golang.org/x/sync/errgroup"
 	"iteasy.wrappedAnsible/internal/ansible"
+	"iteasy.wrappedAnsible/internal/model"
 )
 
 func ExcuteAnsibleWithFiles(w http.ResponseWriter, r *http.Request) {
@@ -25,8 +26,8 @@ func ExcuteAnsibleWithFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Println("Content-Type: ")
-	fmt.Println(r.Header.Get("Content-Type"))
+	// fmt.Println("Content-Type: ")
+	// fmt.Println(r.Header.Get("Content-Type"))
 
 	ctx := r.Context()
 	g, ctx := errgroup.WithContext(ctx)
@@ -36,7 +37,7 @@ func ExcuteAnsibleWithFiles(w http.ResponseWriter, r *http.Request) {
 		R:   r,
 	}
 
-	var payload []byte
+	var payload *ansible.AnsibleProcessStatus
 	g.Go(func() error {
 		e, err := ansible.GetAnsibleFromFactory(p)
 		if err != nil {
@@ -54,9 +55,12 @@ func ExcuteAnsibleWithFiles(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	m := model.NewAnsibleProcessStatus(payload)
+	m.Put()
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(payload); err != nil {
+	if _, err := w.Write(payload.ToBytes()); err != nil {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}
