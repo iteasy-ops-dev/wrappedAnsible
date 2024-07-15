@@ -16,7 +16,7 @@ type GennerateHttpRequestType struct {
 	R   *http.Request
 }
 
-func Excuter(a iAnsible) ([]byte, error) {
+func Excuter(a iAnsible) (*AnsibleProcessStatus, error) {
 	return a.excute()
 }
 

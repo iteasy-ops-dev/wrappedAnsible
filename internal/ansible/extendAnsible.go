@@ -15,6 +15,7 @@ import (
 
 type extendAnsible struct {
 	// DefaultAnsible DefaultAnsible
+	// Public
 	Ctx         context.Context
 	Type        string   // Require: Name of playbook
 	Name        string   // Require: Worker
@@ -22,16 +23,22 @@ type extendAnsible struct {
 	Account     string   // Require: account
 	Password    string   // Require: remote server password
 	Description string   // Description
-	inventory   string   // file.Name()
-	playBook    string   // file.Name()
 
 	Options map[string]interface{}
+
+	// Private
+	inventory string // file.Name()
+	playBook  string // file.Name()
+
+	status   bool
+	payload  string
+	duration time.Duration
 }
 
 func (e *extendAnsible) generateInventoryPayload() []byte {
 	var buffer bytes.Buffer
 	for i := 0; i < len(e.IPs); i++ {
-		entry := fmt.Sprintf(`%s ansible_user=%s ansible_password="%s" ansible_ssh_private_key_file=~/.ssh/control_node`+"\n", e.IPs[i], e.Account, e.Password)
+		entry := fmt.Sprintf(`%s ansible_user=%s ansible_password="%s"`+"\n", e.IPs[i], e.Account, e.Password)
 		buffer.WriteString(entry)
 	}
 	return buffer.Bytes()
@@ -55,6 +62,16 @@ func (e *extendAnsible) createPlaybook() {
 	}
 }
 
+func (e *extendAnsible) addStatus(
+	status bool,
+	stdoutStderr []byte,
+	duration time.Duration,
+) {
+	e.status = status
+	e.payload = string(stdoutStderr)
+	e.duration = time.Duration(duration.Seconds())
+}
+
 func (e *extendAnsible) createExtraVars() string {
 	// 꿀팁: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html
 	jsonString, err := json.Marshal(e.Options)
@@ -64,7 +81,7 @@ func (e *extendAnsible) createExtraVars() string {
 	return string(jsonString)
 }
 
-func (e *extendAnsible) excute() ([]byte, error) {
+func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 	status := true
 	start := time.Now()
 	e.createInventory()
@@ -94,6 +111,7 @@ func (e *extendAnsible) excute() ([]byte, error) {
 			// 클라이언트 연결이 끊겼을 때 작업을 중단합니다.
 			fmt.Println("❌ Client connection closed. Cancelling Ansible execution.")
 			cmd.Process.Kill() // Ansible 프로세스를 강제로 종료합니다.
+			status = false
 		case <-done:
 			return
 		}
@@ -106,25 +124,12 @@ func (e *extendAnsible) excute() ([]byte, error) {
 		fmt.Printf("❌ ERROR: stdoutStderr: %s\n", err)
 		status = false
 	}
+
 	duration := time.Since(start)
 
-	type Res struct {
-		Type     string
-		Name     string
-		Status   bool
-		Payload  string
-		Duration time.Duration // int64
-	}
+	e.addStatus(status, stdoutStderr, duration)
 
-	s := Res{
-		Type:     e.Type,
-		Name:     e.Name,
-		Status:   status,
-		Payload:  string(stdoutStderr),
-		Duration: time.Duration(duration.Seconds()),
-	}
+	s := newAnsibleProcessStatus(e)
 
-	b, _ := json.Marshal(s)
-
-	return b, nil
+	return s, nil
 }
