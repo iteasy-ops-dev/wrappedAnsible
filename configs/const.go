@@ -15,3 +15,8 @@ const PATTERN_OF_ANSIBLE_YML = "ansible-*.yml"
 // const FLAG_PLAYBOOK = "playbook"
 
 const PATH_STATIC_PLAYBOOK = "ansible/"
+
+// DB
+const MONGODB_URL = "mongodb://mongo:27017"
+const MONGODB_DATABASE = "iteasy-ops-dev"
+const COLLECTION_ANSIBLE_PROCESS_STATUS = "ansible_process_status"

@@ -12,6 +12,7 @@ import (
 	"golang.org/x/sync/errgroup"
 	"iteasy.wrappedAnsible/internal/ansible"
 	"iteasy.wrappedAnsible/internal/handlers"
+	"iteasy.wrappedAnsible/internal/model"
 	"iteasy.wrappedAnsible/internal/router"
 )
 
@@ -20,6 +21,11 @@ var (
 )
 
 func init() {
+	client := model.GetMongoInstance()
+	if client != nil {
+		model.PingMongoDB(client)
+	}
+
 	fmt.Println("⚙️ Wrapped Ansible Server Init.")
 	ctx, cancel := context.WithCancel(context.Background())
 	g, ctx := errgroup.WithContext(ctx)
