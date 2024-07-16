@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	config "iteasy.wrappedAnsible/configs"
@@ -13,6 +14,13 @@ func ListFunc(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
 	}
+
+	_, err := ValidateToken(w, r)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Authentication error: %v", err), http.StatusUnauthorized)
+		return
+	}
+
 	res := make([]string, 0)
 	l := utils.GetFileList(config.PATH_STATIC_PLAYBOOK)
 	for _, name := range l {
@@ -26,7 +34,7 @@ func ListFunc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-
+	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

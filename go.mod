@@ -7,7 +7,10 @@ require (
 	golang.org/x/sync v0.7.0
 )
 
+require github.com/pkg/errors v0.9.1 // indirect
+
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect

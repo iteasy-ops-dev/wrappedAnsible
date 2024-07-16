@@ -11,6 +11,7 @@ package model
 // 두 번째 검사: 락을 걸고 mongoInstance가 nil인지 다시 확인합니다. 이는 첫 번째 검사를 통과한 후 다른 스레드가 인스턴스를 생성하지 않았는지 확인합니다.
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -80,4 +81,30 @@ func PingMongoDB(client *mongo.Client) {
 		fmt.Println("✅ Successfully connected to MongoDB!")
 		db = mongoInstance.client.Database(config.MONGODB_DATABASE)
 	}
+}
+
+// cursor
+func DecodeCursor[T any](cursor *mongo.Cursor) ([]T, error) {
+	defer cursor.Close(context.Background())
+	slice := make([]T, 0) // nil이 아님을 보장하기 위해 slice intialize
+	for cursor.Next(context.Background()) {
+		var doc T
+		if err := cursor.Decode(&doc); err != nil {
+			return nil, err
+		}
+		slice = append(slice, doc)
+	}
+	return slice, nil
+}
+
+// single result
+func EvaluateAndDecodeSingleResult[T any](result *mongo.SingleResult) (*T, error) {
+	if result == nil {
+		return nil, errors.New("result is nil")
+	}
+	var v T
+	if err := result.Decode(&v); err != nil {
+		return nil, err
+	}
+	return &v, nil
 }

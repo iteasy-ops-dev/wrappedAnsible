@@ -13,6 +13,7 @@ services:
       context: .
     image: ansible
     container_name: ansible
+    restart: always
     environment:
       - TZ=Asia/Seoul
     ports:

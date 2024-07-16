@@ -16,6 +16,12 @@ func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	_, err := ValidateToken(w, r)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Authentication error: %v", err), http.StatusUnauthorized)
+		return
+	}
+
 	contentType := r.Header.Get("Content-Type")
 
 	if strings.Contains(contentType, "multipart/form-data") {
@@ -46,7 +52,7 @@ func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
 			return fmt.Errorf("failed to get Ansible from factory: %w", err)
 		}
 		payload, err = ansible.Excuter(e)
-		m := model.NewAnsibleProcessStatus(payload)
+		m := model.NewAnsibleProcessStatusDocument(payload)
 		m.Put()
 		if err != nil {
 			return fmt.Errorf("failed to execute Ansible: %w", err)

@@ -4,15 +4,19 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gopkg.in/mgo.v2/bson"
+
 	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/ansible"
 )
 
-type AnsibleProcessStatus struct {
+type AnsibleProcessStatusDocument struct {
 	ID        string                 `bson:"_id,omitempty"`
 	Type      string                 `bson:"type"`
 	IPs       []string               `bson:"ips"`
@@ -23,10 +27,15 @@ type AnsibleProcessStatus struct {
 	Duration  int64                  `bson:"duration"`  // Changed to int64 for BSON compatibility
 	Timestamp int64                  `bson:"timestamp"` // Unix time field
 	Options   map[string]interface{} `bson:"options,omitempty"`
+
+	isOr       bool
+	isDesc     bool
+	comparison string
+	ctx        context.Context
 }
 
-func NewAnsibleProcessStatus(a *ansible.AnsibleProcessStatus) *AnsibleProcessStatus {
-	return &AnsibleProcessStatus{
+func _newAnsibleProcessStatus(a *ansible.AnsibleProcessStatus) *AnsibleProcessStatusDocument {
+	return &AnsibleProcessStatusDocument{
 		Type:      a.Type,
 		IPs:       a.IPs,
 		Name:      a.Name,
@@ -39,32 +48,143 @@ func NewAnsibleProcessStatus(a *ansible.AnsibleProcessStatus) *AnsibleProcessSta
 	}
 }
 
-func (a *AnsibleProcessStatus) Put() {
+func _newHttpRequest(r *http.Request) *AnsibleProcessStatusDocument {
+	query := r.URL.Query()
+
+	var a AnsibleProcessStatusDocument
+
+	// IPs 파라미터를 가져옴 (콤마로 구분된 문자열로 가정)
+	ipsParam := query.Get("ips")
+	var ips []string
+	if ipsParam != "" {
+		ips = strings.Split(ipsParam, ",")
+		a.IPs = ips
+	}
+
+	// isOr 파라미터를 가져옴 (기본값은 false로 설정)
+	isOrParam := query.Get("isOr")
+	isOr := false
+	if isOrParam == "true" {
+		isOr = true
+	}
+
+	isDescParam := query.Get("isDesc")
+	isDesc := true // 기본값
+	if isDescParam == "false" {
+		isDesc = false
+	}
+
+	typeParam := query.Get("type")
+	if typeParam != "" {
+		a.Type = typeParam
+	}
+	nameParam := query.Get("name")
+	if nameParam != "" {
+		a.Name = nameParam
+	}
+	accountParam := query.Get("account")
+	if accountParam != "" {
+		a.Account = accountParam
+	}
+	statusParam := query.Get("status")
+	if statusParam != "" {
+		if statusParam == "true" {
+			a.Status = true
+		}
+		if statusParam == "false" {
+			a.Status = false
+		}
+	}
+	durationParam := query.Get("duration")
+	if durationParam != "" {
+		duration, err := strconv.ParseInt(durationParam, 10, 64)
+		if err == nil {
+			comparisonParam := query.Get("comparison")
+			if comparisonParam != "" {
+				if comparisonParam == "gt" || comparisonParam == "lt" || comparisonParam == "gte" || comparisonParam == "lte" {
+					a.comparison = fmt.Sprintf("$%s", comparisonParam)
+				}
+			} else {
+				a.comparison = "$gte"
+			}
+			a.Duration = duration
+		}
+	}
+
+	a.isDesc = isDesc
+	a.isOr = isOr
+	a.ctx = r.Context()
+
+	return &a
+}
+
+func NewAnsibleProcessStatusDocument(v interface{}) *AnsibleProcessStatusDocument {
+	switch t := v.(type) {
+	case *ansible.AnsibleProcessStatus:
+		return _newAnsibleProcessStatus(t)
+	case *http.Request:
+		return _newHttpRequest(t)
+	default:
+		return &AnsibleProcessStatusDocument{}
+	}
+}
+
+func (a *AnsibleProcessStatusDocument) Put() {
 	collection := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
-	_, err := collection.InsertOne(context.TODO(), a)
+	_, err := collection.InsertOne(context.Background(), a)
 	if err != nil {
 		log.Fatalf("Failed to insert user: %v", err)
 	}
 	fmt.Println("User created:", a)
 }
 
-func FindByIPs(ips []string, isOr bool, isDesc bool) ([]AnsibleProcessStatus, error) {
+func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, error) {
 	collection := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
-	result := []AnsibleProcessStatus{}
+	// result := []AnsibleProcessStatus{}
 	var orderKey string = "timestamp"
 
-	var filter bson.M
-	if len(ips) == 0 || !isOr {
-		filter = bson.M{"ips": bson.M{"$all": ips}}
+	filter := bson.M{}
+	if len(a.IPs) > 0 {
+		if a.isOr {
+			filter["ips"] = bson.M{"$in": a.IPs}
+		} else {
+			filter["ips"] = bson.M{"$all": a.IPs}
+		}
+	}
+	if a.Type != "" {
+		filter["type"] = a.Type
+	}
+	if a.Name != "" {
+		filter["name"] = a.Name
+	}
+	if a.Account != "" {
+		filter["account"] = a.Account
+	}
+	// if a.Status {
+	// 	filter["status"] = a.Status
+	// }
+
+	if a.Status {
+		filter["$or"] = []bson.M{
+			{"status": true},
+			{"status": bson.M{"$exists": false}},
+		}
 	} else {
-		filter = bson.M{"ips": bson.M{"$in": ips}}
+		filter["$or"] = []bson.M{
+			{"status": false},
+			{"status": bson.M{"$exists": false}},
+		}
 	}
 
-	var sort bson.M
-	if !isDesc {
-		// 오름차순
-		sort = bson.M{orderKey: 1}
-	} else {
+	if a.Duration > 0 {
+		filter["duration"] = bson.M{a.comparison: a.Duration}
+		// filter["duration"] = bson.M{"$gte": a.Duration} // duration 이상
+		// filter["duration"] = bson.M{"$lte": a.Duration} // duration 이하 또는 같음
+	}
+
+	// 정렬 옵션 설정
+	sort := bson.M{orderKey: 1}
+	if a.isDesc {
 		sort = bson.M{orderKey: -1}
 	}
 
@@ -72,105 +192,11 @@ func FindByIPs(ips []string, isOr bool, isDesc bool) ([]AnsibleProcessStatus, er
 	options := options.Find().SetSort(sort)
 
 	// 쿼리 수행
-	cursor, err := collection.Find(context.Background(), filter, options)
+	cursor, err := collection.Find(a.ctx, filter, options)
+	// cursor, err := collection.Find(context.Background(), filter, options)
 	if err != nil {
 		return nil, err
 	}
-	defer cursor.Close(context.Background())
 
-	// 결과 처리
-	for cursor.Next(context.Background()) {
-		var status AnsibleProcessStatus
-		if err := cursor.Decode(&status); err != nil {
-			return nil, err
-		}
-		result = append(result, status)
-	}
-	if err := cursor.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return DecodeCursor[AnsibleProcessStatusDocument](cursor)
 }
-
-// func FindByIPs(ips []string, isOr bool, isDesc bool) ([]AnsibleProcessStatus, error) {
-// 	collection := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
-// 	result := []AnsibleProcessStatus{}
-// 	var orderKey string = "timestamp"
-
-// 	var filter bson.D
-// 	if len(ips) == 0 || !isOr {
-// 		filter = bson.D{{Name: "ips", Value: bson.D{{Name: "$all", Value: ips}}}}
-// 	} else {
-// 		filter = bson.D{{Name: "ips", Value: bson.D{{Name: "$all", Value: ips}}}}
-// 	}
-
-// 	var sort bson.D
-// 	if !isDesc {
-// 		// 오름차순
-// 		sort = bson.D{{Name: orderKey, Value: 1}}
-// 	} else {
-// 		sort = bson.D{{Name: orderKey, Value: -1}}
-// 	}
-
-// 	// 쿼리 옵션 설정
-// 	options := options.Find().SetSort(sort)
-
-// 	// 쿼리 수행
-// 	cursor, err := collection.Find(context.Background(), filter, options)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer cursor.Close(context.Background())
-
-// 	// 결과 처리
-// 	for cursor.Next(context.Background()) {
-// 		var status AnsibleProcessStatus
-// 		if err := cursor.Decode(&status); err != nil {
-// 			return nil, err
-// 		}
-// 		result = append(result, status)
-// 	}
-// 	if err := cursor.Err(); err != nil {
-// 		return nil, err
-// 	}
-
-// 	return result, nil
-// }
-
-// func CreateUser(a AnsibleProcessStatus) {
-// 	collectionUser := db.Collection("ansible_status")
-// 	_, err := collectionUser.InsertOne(context.TODO(), a)
-// 	if err != nil {
-// 		log.Fatalf("Failed to insert user: %v", err)
-// 	}
-// 	fmt.Println("User created:", a)
-// }
-
-// func ReadUser(id string) *AnsibleProcessStatus {
-// 	var a AnsibleProcessStatus
-// 	collectionUser := db.Collection("ansible_status")
-// 	err := collectionUser.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&a)
-// 	if err != nil {
-// 		log.Fatalf("Failed to read user: %v", err)
-// 	}
-// 	return &a
-// }
-
-// func UpdateUser(id string, update bson.M) {
-// 	collectionUser := db.Collection("ansible_status")
-// 	_, err := collectionUser.UpdateOne(context.TODO(), bson.M{"_id": id}, bson.M{"$set": update})
-// 	if err != nil {
-// 		log.Fatalf("Failed to update user: %v", err)
-// 	}
-// 	fmt.Println("User updated:", id)
-// }
-
-// func DeleteUser(id string) {
-// 	collectionUser := db.Collection("ansible_status")
-// 	_, err := collectionUser.DeleteOne(context.TODO(), bson.M{"_id": id})
-// 	if err != nil {
-// 		log.Fatalf("Failed to delete user: %v", err)
-// 	}
-// 	fmt.Println("User deleted:", id)
-// }

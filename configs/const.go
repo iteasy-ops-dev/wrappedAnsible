@@ -1,5 +1,7 @@
 package config
 
+const JWT_KEY = "LQ#la(h{3^,@uNw"
+
 const ANSIBLE_PLAYBOOK = "ansible-playbook"
 
 const OPTION_EXTRA_VARS = "--extra-vars"
@@ -20,3 +22,4 @@ const PATH_STATIC_PLAYBOOK = "ansible/"
 const MONGODB_URL = "mongodb://mongo:27017"
 const MONGODB_DATABASE = "iteasy-ops-dev"
 const COLLECTION_ANSIBLE_PROCESS_STATUS = "ansible_process_status"
+const COLLECTION_AUTH = "auth"
