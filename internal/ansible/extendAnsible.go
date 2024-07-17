@@ -121,7 +121,8 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 	stdoutStderr, err := cmd.CombinedOutput()
 
 	if err != nil {
-		fmt.Printf("❌ ERROR: stdoutStderr: %s\n", err)
+		fmt.Println(fmt.Errorf("❌ ERROR: stdoutStderr: %w", err))
+		fmt.Println(fmt.Errorf("❌ ERROR: stdoutStderr: %s", stdoutStderr))
 		status = false
 	}
 

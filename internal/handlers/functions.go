@@ -2,22 +2,17 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/pkg/utils"
 )
 
-func ListFunc(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+func Functions(w http.ResponseWriter, r *http.Request) {
+	if err := AllowMethod(w, r, http.MethodGet); err != nil {
 		return
 	}
-
-	_, err := ValidateToken(w, r)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Authentication error: %v", err), http.StatusUnauthorized)
+	if err := ValidateToken(w, r); err != nil {
 		return
 	}
 

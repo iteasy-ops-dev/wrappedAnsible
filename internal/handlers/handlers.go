@@ -10,7 +10,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/login", Login)
 
 	// with JWT
-	mux.HandleFunc("/list_func", ListFunc)
+	mux.HandleFunc("/functions", Functions)
 	mux.HandleFunc("/run", ExcuteAnsible)
 	mux.HandleFunc("/get", Get)
 }

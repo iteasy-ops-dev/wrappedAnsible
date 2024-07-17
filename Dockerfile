@@ -33,6 +33,9 @@ RUN ansible-galaxy collection install community.general
 WORKDIR /root
 COPY --from=build /go-app /go-app
 COPY ansible ansible
+COPY server.crt /server.crt
+COPY server.csr /server.csr
+COPY server.key /server.key
 EXPOSE 8080
 
 ENTRYPOINT ["/go-app"]

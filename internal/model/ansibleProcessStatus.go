@@ -130,8 +130,8 @@ func NewAnsibleProcessStatusDocument(v interface{}) *AnsibleProcessStatusDocumen
 }
 
 func (a *AnsibleProcessStatusDocument) Put() {
-	collection := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
-	_, err := collection.InsertOne(context.Background(), a)
+	col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
+	_, err := col.InsertOne(context.Background(), a)
 	if err != nil {
 		log.Fatalf("Failed to insert user: %v", err)
 	}
@@ -139,7 +139,7 @@ func (a *AnsibleProcessStatusDocument) Put() {
 }
 
 func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, error) {
-	collection := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
+	col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
 	// result := []AnsibleProcessStatus{}
 	var orderKey string = "timestamp"
 
@@ -192,7 +192,7 @@ func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, er
 	options := options.Find().SetSort(sort)
 
 	// 쿼리 수행
-	cursor, err := collection.Find(a.ctx, filter, options)
+	cursor, err := col.Find(a.ctx, filter, options)
 	// cursor, err := collection.Find(context.Background(), filter, options)
 	if err != nil {
 		return nil, err

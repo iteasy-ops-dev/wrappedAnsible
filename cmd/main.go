@@ -10,7 +10,9 @@ import (
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
+	"iteasy.wrappedAnsible/internal/ansible"
 	"iteasy.wrappedAnsible/internal/handlers"
+	"iteasy.wrappedAnsible/internal/model"
 	"iteasy.wrappedAnsible/internal/router"
 )
 
@@ -18,45 +20,44 @@ var (
 	port = ":8080"
 )
 
-// func init() {
-// 	client := model.GetMongoInstance()
-// 	if client != nil {
-// 		model.PingMongoDB(client)
-// 	}
+func _mongo() {
+	client := model.GetMongoInstance()
+	if client != nil {
+		model.PingMongoDB(client)
+	}
+}
 
-// 	fmt.Println("⚙️ Wrapped Ansible Server Init.")
-// 	ctx, cancel := context.WithCancel(context.Background())
-// 	g, ctx := errgroup.WithContext(ctx)
-// 	defer cancel()
+func _ansible() {
+	fmt.Println("⚙️ Wrapped Ansible Server Init.")
+	ctx, cancel := context.WithCancel(context.Background())
+	// g, ctx := errgroup.WithContext(ctx)
+	defer cancel()
 
-// 	initJsonData := `{
-// 			"type": "init",
-// 			"name": "서버 초기화 실행.",
-// 		  "options": {}
-// 	  }
-// 	`
-// 	init := ansible.GennerateInitType{
-// 		Ctx:      ctx,
-// 		JsonData: []byte(initJsonData),
-// 	}
+	initJsonData := `{
+			"type": "init",
+			"name": "서버 초기화 실행.",
+		  "options": {}
+	  }
+	`
+	init := ansible.GennerateInitType{
+		Ctx:      ctx,
+		JsonData: []byte(initJsonData),
+	}
 
-// 	g.Go(func() error {
-// 		var err error
-// 		initAnsible, err := ansible.GetAnsibleFromFactory(init)
-// 		if err != nil {
-// 			return fmt.Errorf("failed to get Ansible from factory: %w", err)
-// 		}
-// 		r, err := ansible.Excuter(initAnsible)
-// 		if !r.Status || err != nil {
-// 			return fmt.Errorf("failed to execute Ansible: %w", err)
-// 		}
-// 		return nil
-// 	})
+	initAnsible, _ := ansible.GetAnsibleFromFactory(init)
+	// if err != nil {
+	// 	panic("❌ 서버 초기화 실패.")
+	// }
+	r, err := ansible.Excuter(initAnsible)
+	if !r.Status || err != nil {
+		panic("❌ 서버 초기화 실패.")
+	}
+}
 
-// 	if err := g.Wait(); err != nil {
-// 		panic("❌ 서버 초기화 실패.")
-// 	}
-// }
+func init() {
+	_mongo()
+	_ansible()
+}
 
 func main() {
 	var g errgroup.Group
@@ -66,11 +67,13 @@ func main() {
 	server := &http.Server{
 		Addr:    port,
 		Handler: handlers.CorsMiddleware(router.NewRouter()),
+		// TLSConfig: &tls.Config{MinVersion: tls.VersionTLS12},
 	}
 
 	g.Go(func() error {
 		fmt.Printf("✅ Welcome Wrapped Ansible Server. PORT %s\n", port)
 		return server.ListenAndServe()
+		// return server.ListenAndServeTLS("server.crt", "server.key")
 	})
 
 	// Signal handling

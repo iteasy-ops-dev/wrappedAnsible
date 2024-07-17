@@ -8,15 +8,29 @@ services:
     ports:
       - 27017:27017
 
-  ansible:
-    build: 
-      context: .
-    image: ansible
-    container_name: ansible
-    restart: always
-    environment:
-      - TZ=Asia/Seoul
-    ports:
-      - 8080:8080
-    depends_on:
-      - mongo
+  # ansible:
+  #   build: 
+  #     context: .
+  #   image: ansible
+  #   container_name: ansible
+  #   restart: always
+  #   environment:
+  #     - TZ=Asia/Seoul
+  #   ports:
+  #     - 8080:8080
+  #   depends_on:
+  #     - mongo
+
+  # nginx:
+  #   build: 
+  #     context: ../iteasy.nocssFrontWithReact
+  #   image: nginx
+  #   container_name: nginx
+  #   restart: always
+  #   environment:
+  #     - TZ=Asia/Seoul
+  #   ports:
+  #     - 80:80
+  #   depends_on:
+  #     - mongo
+  #     - ansible

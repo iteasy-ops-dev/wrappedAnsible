@@ -9,17 +9,12 @@ import (
 )
 
 func Get(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+	if err := AllowMethod(w, r, http.MethodGet); err != nil {
 		return
 	}
-
-	_, err := ValidateToken(w, r)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Authentication error: %v", err), http.StatusUnauthorized)
+	if err := ValidateToken(w, r); err != nil {
 		return
 	}
-
 	n := model.NewAnsibleProcessStatusDocument(r)
 	result, err := n.Get()
 
