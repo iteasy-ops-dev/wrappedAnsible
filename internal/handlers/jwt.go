@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	JWT_EXPIRE_TIME  = 5 * time.Minute
-	REFRESH_JWT_TIMW = 1 * time.Minute
+	JWT_EXPIRE_TIME  = 60 * time.Minute
+	REFRESH_JWT_TIMW = 1 * time.Minute //TODO: 안쓸거면 지우자
 )
 
 var JWT_KEY = []byte(config.JWT_KEY)

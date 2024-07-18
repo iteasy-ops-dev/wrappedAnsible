@@ -133,9 +133,9 @@ func (a *AnsibleProcessStatusDocument) Put() {
 	col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
 	_, err := col.InsertOne(context.Background(), a)
 	if err != nil {
+		// TODO: 에러 제어 재작성
 		log.Fatalf("Failed to insert user: %v", err)
 	}
-	fmt.Println("User created:", a)
 }
 
 func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, error) {
@@ -160,9 +160,10 @@ func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, er
 	if a.Account != "" {
 		filter["account"] = a.Account
 	}
-	// if a.Status {
-	// 	filter["status"] = a.Status
-	// }
+
+	// TODO: 값이 없을 때 기본적으로 무엇을 설정하는지 확인하고 지우지
+	fmt.Println("a.Status:")
+	fmt.Println(a.Status)
 
 	if a.Status {
 		filter["$or"] = []bson.M{

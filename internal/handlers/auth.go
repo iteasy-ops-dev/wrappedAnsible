@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 
@@ -86,5 +87,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {
-	// jwt 만료시키기
+	// TODO: jwt 만료시키기
+	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HttpOnly: true,
+		Path:     "/",
+	})
+
+	w.WriteHeader(http.StatusOK)
 }
