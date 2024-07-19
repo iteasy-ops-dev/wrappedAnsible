@@ -69,7 +69,7 @@ func _newHttpRequest(r *http.Request) *AnsibleProcessStatusDocument {
 	}
 
 	isDescParam := query.Get("isDesc")
-	isDesc := true // 기본값
+	isDesc := true // 기본값: 내림차순
 	if isDescParam == "false" {
 		isDesc = false
 	}
@@ -138,6 +138,7 @@ func (a *AnsibleProcessStatusDocument) Put() {
 	}
 }
 
+// TODO: 페이징을 할 것인가
 func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, error) {
 	col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
 	// result := []AnsibleProcessStatus{}
@@ -161,10 +162,11 @@ func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, er
 		filter["account"] = a.Account
 	}
 
-	// TODO: 값이 없을 때 기본적으로 무엇을 설정하는지 확인하고 지우지
+	// TODO: 값이 없을 때 기본적으로 무엇을 설정하는지 확인하고 지우기
 	fmt.Println("a.Status:")
 	fmt.Println(a.Status)
 
+	// TODO: 해당 옵션이 없을 경우 모두 나올 수 있게 하는 방법 찾기
 	if a.Status {
 		filter["$or"] = []bson.M{
 			{"status": true},
@@ -179,8 +181,6 @@ func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, er
 
 	if a.Duration > 0 {
 		filter["duration"] = bson.M{a.comparison: a.Duration}
-		// filter["duration"] = bson.M{"$gte": a.Duration} // duration 이상
-		// filter["duration"] = bson.M{"$lte": a.Duration} // duration 이하 또는 같음
 	}
 
 	// 정렬 옵션 설정
