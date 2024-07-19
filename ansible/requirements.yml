@@ -18,3 +18,7 @@
 - src: https://github.com/iteasy-ops-dev/ansible.roles.package_manager.git
   scm: git
   version: main
+
+- src: https://github.com/iteasy-ops-dev/ansible.roles.webhost_manager.git
+  scm: git
+  version: main
