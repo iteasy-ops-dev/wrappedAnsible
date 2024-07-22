@@ -38,7 +38,7 @@ type extendAnsible struct {
 func (e *extendAnsible) generateInventoryPayload() []byte {
 	var buffer bytes.Buffer
 	for i := 0; i < len(e.IPs); i++ {
-		entry := fmt.Sprintf(`%s ansible_user=%s ansible_password="%s"`+"\n", e.IPs[i], e.Account, e.Password)
+		entry := fmt.Sprintf(`%s ansible_user=%s ansible_password="%s" ansible_become_pass="%s"`+"\n", e.IPs[i], e.Account, e.Password, e.Password)
 		buffer.WriteString(entry)
 	}
 	return buffer.Bytes()
@@ -86,6 +86,7 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 	start := time.Now()
 	e.createInventory()
 	e.createPlaybook()
+	// ansible 구동 후 임시 인벤토리 파일 삭제
 	defer utils.RemoveFile(e.inventory)
 
 	fmt.Printf(
