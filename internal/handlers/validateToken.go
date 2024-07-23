@@ -5,11 +5,12 @@ import (
 	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
+	config "iteasy.wrappedAnsible/configs"
 )
 
 // func ValidateToken(w http.ResponseWriter, r *http.Request) error {
 // 	// 클라이언트로부터 쿠키에서 토큰을 가져옵니다.
-// 	c, err := r.Cookie("token")
+// 	c, err := r.Cookie(JWT_TOKEN_NAME)
 // 	if err != nil {
 // 		// 쿠키가 없는 경우 401 Unauthorized를 반환합니다.
 // 		if err == http.ErrNoCookie {
@@ -60,7 +61,7 @@ import (
 
 // 		// 새로운 토큰을 클라이언트에게 전달하기 위해 쿠키를 설정합니다.
 // 		http.SetCookie(w, &http.Cookie{
-// 			Name:    "token",
+// 			Name:    JWT_TOKEN_NAME,
 // 			Value:   newTokenString,
 // 			Expires: newExpirationTime,
 // 			Path:    "/",
@@ -76,7 +77,7 @@ import (
 
 func ValidateToken(w http.ResponseWriter, r *http.Request) error {
 	// 클라이언트로부터 쿠키에서 토큰을 가져옵니다.
-	c, err := r.Cookie("token")
+	c, err := r.Cookie(config.JWT_TOKEN_NAME)
 	if err != nil {
 		// 쿠키가 없는 경우 401 Unauthorized를 반환합니다.
 		if err == http.ErrNoCookie {

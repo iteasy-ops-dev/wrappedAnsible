@@ -27,3 +27,5 @@ const MONGODB_URL = "mongodb://mongo:27017"
 const MONGODB_DATABASE = "iteasy-ops-dev"
 const COLLECTION_ANSIBLE_PROCESS_STATUS = "ansible_process_status"
 const COLLECTION_AUTH = "auth"
+
+const JWT_TOKEN_NAME = "token"

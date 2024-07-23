@@ -47,11 +47,14 @@ func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return fmt.Errorf("failed to get Ansible from factory: %w", err)
 		}
-		payload, err = ansible.Excuter(e)
-		m := model.NewAnsibleProcessStatusDocument(payload)
-		m.Put()
+		payload, err := ansible.Excuter(e)
 		if err != nil {
 			return fmt.Errorf("failed to execute Ansible: %w", err)
+		}
+		m := model.NewAnsibleProcessStatusDocument(payload)
+		err = m.Put()
+		if err != nil {
+			return err
 		}
 		return err
 	})

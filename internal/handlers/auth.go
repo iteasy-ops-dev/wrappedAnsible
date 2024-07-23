@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/model"
 )
 
@@ -93,7 +94,7 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     "token",
+		Name:     config.JWT_TOKEN_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
 		HttpOnly: true,

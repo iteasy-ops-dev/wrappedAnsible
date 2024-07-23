@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -87,13 +86,9 @@ func _newHttpRequest(r *http.Request) *AnsibleProcessStatusDocument {
 		a.Account = accountParam
 	}
 	statusParam := query.Get("status")
-	if statusParam != "" {
-		if statusParam == "true" {
-			a.Status = true
-		}
-		if statusParam == "false" {
-			a.Status = false
-		}
+	a.Status = true
+	if statusParam != "" && statusParam == "false" {
+		a.Status = false
 	}
 	durationParam := query.Get("duration")
 	if durationParam != "" {
@@ -129,13 +124,13 @@ func NewAnsibleProcessStatusDocument(v interface{}) *AnsibleProcessStatusDocumen
 	}
 }
 
-func (a *AnsibleProcessStatusDocument) Put() {
+func (a *AnsibleProcessStatusDocument) Put() error {
 	col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
 	_, err := col.InsertOne(context.Background(), a)
 	if err != nil {
-		// TODO: 에러 제어 재작성
-		log.Fatalf("Failed to insert user: %v", err)
+		return fmt.Errorf("failed to insert: %w", err)
 	}
+	return nil
 }
 
 // TODO: 페이징을 할 것인가
@@ -161,10 +156,6 @@ func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, er
 	if a.Account != "" {
 		filter["account"] = a.Account
 	}
-
-	// TODO: 값이 없을 때 기본적으로 무엇을 설정하는지 확인하고 지우기
-	fmt.Println("a.Status:")
-	fmt.Println(a.Status)
 
 	// TODO: 해당 옵션이 없을 경우 모두 나올 수 있게 하는 방법 찾기
 	if a.Status {

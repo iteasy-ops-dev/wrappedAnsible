@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	JWT_EXPIRE_TIME  = 60 * time.Minute
-	REFRESH_JWT_TIMW = 1 * time.Minute //TODO: 안쓸거면 지우자
+	JWT_EXPIRE_TIME = 60 * time.Minute
+	// REFRESH_JWT_TIMW = 1 * time.Minute //TODO: 안쓸거면 지우자
 )
 
 var JWT_KEY = []byte(config.JWT_KEY)
@@ -39,7 +39,7 @@ func IssueJWT(w http.ResponseWriter, r *http.Request, s User) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    "token",
+		Name:    config.JWT_TOKEN_NAME,
 		Value:   tokenString,
 		Expires: expirationTime,
 		Path:    "/",
