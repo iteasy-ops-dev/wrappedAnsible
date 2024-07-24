@@ -94,7 +94,8 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:     config.JWT_TOKEN_NAME,
+		Name: config.GlobalConfig.JWTTokenName,
+		// Name:     config.JWT_TOKEN_NAME,
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
 		HttpOnly: true,

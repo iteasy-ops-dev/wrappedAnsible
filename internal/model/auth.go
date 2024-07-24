@@ -45,7 +45,8 @@ func (a *Auth) SetPassword(s string) {
 }
 
 func (a *Auth) checkExistingUser() (bool, error) {
-	col := db.Collection(config.COLLECTION_AUTH)
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	// col := db.Collection(config.COLLECTION_AUTH)
 	filter := bson.M{"email": a.Email}
 	var existingUser Auth
 	err := col.FindOne(a.ctx, filter).Decode(&existingUser)
@@ -63,7 +64,8 @@ func (a *Auth) checkExistingUser() (bool, error) {
 // }
 
 func (a *Auth) signUp() error {
-	col := db.Collection(config.COLLECTION_AUTH)
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	// col := db.Collection(config.COLLECTION_AUTH)
 	_, err := col.InsertOne(a.ctx, a)
 	if err != nil {
 		return err
@@ -83,7 +85,8 @@ func (a *Auth) SignUp() error {
 }
 
 func (a *Auth) Login() error {
-	col := db.Collection(config.COLLECTION_AUTH)
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	// col := db.Collection(config.COLLECTION_AUTH)
 	filter := bson.M{"email": a.Email}
 	sr := col.FindOne(a.ctx, filter)
 	r, err := EvaluateAndDecodeSingleResult[Auth](sr)

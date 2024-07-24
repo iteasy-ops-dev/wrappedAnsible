@@ -125,7 +125,8 @@ func NewAnsibleProcessStatusDocument(v interface{}) *AnsibleProcessStatusDocumen
 }
 
 func (a *AnsibleProcessStatusDocument) Put() error {
-	col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.AnsibleProcessStatus)
+	// col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
 	_, err := col.InsertOne(context.Background(), a)
 	if err != nil {
 		return fmt.Errorf("failed to insert: %w", err)
@@ -135,7 +136,8 @@ func (a *AnsibleProcessStatusDocument) Put() error {
 
 // TODO: 페이징을 할 것인가
 func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, error) {
-	col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.AnsibleProcessStatus)
+	// col := db.Collection(config.COLLECTION_ANSIBLE_PROCESS_STATUS)
 	// result := []AnsibleProcessStatus{}
 	var orderKey string = "timestamp"
 

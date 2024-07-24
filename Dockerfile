@@ -32,6 +32,7 @@ RUN ansible-galaxy collection install community.general
 
 WORKDIR /root
 COPY --from=build /go-app /go-app
+COPY config.json /config.json
 COPY ansible ansible
 COPY server.crt /server.crt
 COPY server.csr /server.csr

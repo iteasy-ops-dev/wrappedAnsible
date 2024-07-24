@@ -45,7 +45,7 @@ func (e *extendAnsible) generateInventoryPayload() []byte {
 }
 
 func (e *extendAnsible) createInventory() {
-	r, err := utils.GenerateTempFile(e.generateInventoryPayload(), config.PATTERN_OF_INVENTORY_INI)
+	r, err := utils.GenerateTempFile(e.generateInventoryPayload(), config.GlobalConfig.Ansible.Patterns.InventoryINI)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,8 +53,10 @@ func (e *extendAnsible) createInventory() {
 }
 
 func (e *extendAnsible) createPlaybook() {
-	m := utils.GetFileListForMap(config.PATH_STATIC_PLAYBOOK)
-	path := fmt.Sprintf(`%s%s`, config.PATH_STATIC_PLAYBOOK, m[e.Type])
+	m := utils.GetFileListForMap(config.GlobalConfig.Ansible.PathStaticPlaybook)
+	// m := utils.GetFileListForMap(config.PATH_STATIC_PLAYBOOK)
+	path := fmt.Sprintf(`%s%s`, config.GlobalConfig.Ansible.PathStaticPlaybook, m[e.Type])
+	// path := fmt.Sprintf(`%s%s`, config.PATH_STATIC_PLAYBOOK, m[e.Type])
 	if utils.ExistFile(path) {
 		e.playBook = path
 	} else {
@@ -96,10 +98,10 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 
 	cmd := exec.CommandContext(
 		e.Ctx,
-		config.ANSIBLE_PLAYBOOK,
+		config.GlobalConfig.Ansible.Playbook,
 		e.playBook,
-		config.OPTION_INVENTORY, e.inventory,
-		config.OPTION_EXTRA_VARS, e.createExtraVars(),
+		config.GlobalConfig.Ansible.Options.Inventory, e.inventory,
+		config.GlobalConfig.Ansible.Options.ExtraVars, e.createExtraVars(),
 	)
 
 	// 채널을 생성하여 클라이언트 연결이 끊길 때 신호를 기다립니다.

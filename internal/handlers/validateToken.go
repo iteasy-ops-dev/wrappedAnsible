@@ -77,7 +77,8 @@ import (
 
 func ValidateToken(w http.ResponseWriter, r *http.Request) error {
 	// 클라이언트로부터 쿠키에서 토큰을 가져옵니다.
-	c, err := r.Cookie(config.JWT_TOKEN_NAME)
+	c, err := r.Cookie(config.GlobalConfig.JWTTokenName)
+	// c, err := r.Cookie(config.JWT_TOKEN_NAME)
 	if err != nil {
 		// 쿠키가 없는 경우 401 Unauthorized를 반환합니다.
 		if err == http.ErrNoCookie {

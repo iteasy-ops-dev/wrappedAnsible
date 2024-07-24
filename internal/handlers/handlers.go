@@ -15,4 +15,5 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/functions", Functions)
 	mux.HandleFunc("/run", ExcuteAnsible)
 	mux.HandleFunc("/get", Get)
+	mux.HandleFunc("/erp-parser", ErpParser)
 }

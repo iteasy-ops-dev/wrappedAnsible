@@ -17,7 +17,8 @@ func Functions(w http.ResponseWriter, r *http.Request) {
 	}
 
 	res := make([]string, 0)
-	l := utils.GetFileList(config.PATH_STATIC_PLAYBOOK)
+	l := utils.GetFileList(config.GlobalConfig.Ansible.PathStaticPlaybook)
+	// l := utils.GetFileList(config.PATH_STATIC_PLAYBOOK)
 	for _, name := range l {
 		if utils.CheckExtension(name, `.yml`) {
 			// 초기화에 필요한 yml이므로 제외

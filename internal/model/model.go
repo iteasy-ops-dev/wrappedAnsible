@@ -37,7 +37,8 @@ func getInstance() *dbInstance {
 		defer lock.Unlock()
 		if mongoInstance == nil {
 			fmt.Println("⚙️ Creating mongo Client now.")
-			client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.MONGODB_URL))
+			client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.GlobalConfig.MongoDB.URL))
+			// client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(config.MONGODB_URL))
 			if err != nil {
 				fmt.Println("❌ Failed to connect to MongoDB:", err)
 				return nil
@@ -79,7 +80,8 @@ func PingMongoDB(client *mongo.Client) {
 		panic(fmt.Sprintf("❌ Failed to ping MongoDB: %v", err))
 	} else {
 		fmt.Println("✅ Successfully connected to MongoDB!")
-		db = mongoInstance.client.Database(config.MONGODB_DATABASE)
+		db = mongoInstance.client.Database(config.GlobalConfig.MongoDB.Database)
+		// db = mongoInstance.client.Database(config.MONGODB_DATABASE)
 	}
 }
 

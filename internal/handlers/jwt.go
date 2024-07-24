@@ -14,7 +14,9 @@ const (
 	// REFRESH_JWT_TIMW = 1 * time.Minute //TODO: 안쓸거면 지우자
 )
 
-var JWT_KEY = []byte(config.JWT_KEY)
+var JWT_KEY = []byte(config.GlobalConfig.JWTKey)
+
+// var JWT_KEY = []byte(config.JWT_KEY)
 
 // TODO: 구조체를 어떻게 정리할지 생각해야함
 type Claims struct {
@@ -39,7 +41,8 @@ func IssueJWT(w http.ResponseWriter, r *http.Request, s User) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name:    config.JWT_TOKEN_NAME,
+		Name: config.GlobalConfig.JWTTokenName,
+		// Name:    config.JWT_TOKEN_NAME,
 		Value:   tokenString,
 		Expires: expirationTime,
 		Path:    "/",
