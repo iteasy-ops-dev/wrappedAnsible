@@ -196,6 +196,7 @@ func (e *ErpParser) ToBytes() []byte {
 	return b
 }
 
+// TODO: 작업의뢰를 세분화해서 가져 올 수 있게 하는 로직이 필요
 func extractInfo(text string) (Info, error) {
 	info := Info{}
 
