@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -20,6 +21,10 @@ type Auth struct {
 	AtDate   int64  `bson:"atDate"`
 	IsActive bool   `bson:"isActive"`
 	IsAdmin  bool   `bson:"IsAdmin"`
+
+	// mail 메일 인증
+	VerificationToken string `bson:"verificationToken"`
+	Verified          bool   `bson:"verified"`
 
 	ctx context.Context
 }
@@ -42,6 +47,11 @@ func (a *Auth) SetName(s string) {
 }
 func (a *Auth) SetPassword(s string) {
 	a.Password = s
+}
+
+// mail 메일 인증
+func (a *Auth) SetVerificationToken(token string) {
+	a.VerificationToken = token
 }
 
 func (a *Auth) checkExistingUser() (bool, error) {
@@ -84,9 +94,27 @@ func (a *Auth) SignUp() error {
 	return a.signUp()
 }
 
+// func (a *Auth) Login() error {
+// 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+// 	// col := db.Collection(config.COLLECTION_AUTH)
+// 	filter := bson.M{"email": a.Email}
+// 	sr := col.FindOne(a.ctx, filter)
+// 	r, err := EvaluateAndDecodeSingleResult[Auth](sr)
+
+// 	if err != nil {
+// 		return NewUserNotFoundError(a.Email)
+// 	}
+
+// 	err = bcrypt.CompareHashAndPassword([]byte(r.Password), []byte(a.Password))
+// 	if err != nil {
+// 		return NewIncorrectPasswordError()
+// 	}
+
+// 	return nil
+// }
+
 func (a *Auth) Login() error {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
-	// col := db.Collection(config.COLLECTION_AUTH)
 	filter := bson.M{"email": a.Email}
 	sr := col.FindOne(a.ctx, filter)
 	r, err := EvaluateAndDecodeSingleResult[Auth](sr)
@@ -95,10 +123,37 @@ func (a *Auth) Login() error {
 		return NewUserNotFoundError(a.Email)
 	}
 
+	// Check if the user is active
+	if !r.IsActive {
+		return NewUserNotActiveError(a.Email)
+	}
+
+	// Check if the user is verified
+	if !r.Verified {
+		return NewUserNotVerifiedError(a.Email)
+	}
+
 	err = bcrypt.CompareHashAndPassword([]byte(r.Password), []byte(a.Password))
 	if err != nil {
 		return NewIncorrectPasswordError()
 	}
 
+	return nil
+}
+
+// mail 메일 인증
+func (a *Auth) VerifyEmail() error {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+
+	filter := bson.M{"verificationToken": a.VerificationToken}
+	update := bson.M{"$set": bson.M{"verified": true, "verificationToken": ""}}
+
+	result, err := col.UpdateOne(a.ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return errors.New("invalid or expired token")
+	}
 	return nil
 }

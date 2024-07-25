@@ -13,6 +13,7 @@ type Config struct {
 	Ansible      AnsibleConfig `json:"ansible"`
 	MongoDB      MongoDBConfig `json:"mongodb"`
 	Erp          ErpConfig     `json:"erp"`
+	Smtp         SmtpConfig    `json:"smtp"`
 }
 
 type AnsibleConfig struct {
@@ -55,6 +56,12 @@ type ErpLoginConfig struct {
 	AdminPasswd string `json:"admin_passwd"`
 	AllowType   string `json:"allow_type"`
 	LoginBtn    string `json:"login_btn"`
+}
+
+type SmtpConfig struct {
+	Host string `json:"host"`
+	Port string `json:"port"`
+	From string `json:"from"`
 }
 
 // 전역 변수로 설정을 저장합니다.

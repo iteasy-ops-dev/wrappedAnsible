@@ -8,6 +8,7 @@ import (
 func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/health", Health)
 	mux.HandleFunc("/signup", SignUp)
+	mux.HandleFunc("/verify", VerifyEmail)
 	mux.HandleFunc("/login", Login)
 	mux.HandleFunc("/logout", Logout)
 

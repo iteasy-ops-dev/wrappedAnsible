@@ -1,10 +1,14 @@
 package utils
 
 import (
+	"fmt"
 	"log"
+	"net/smtp"
 	"os"
 	"regexp"
 	"strings"
+
+	config "iteasy.wrappedAnsible/configs"
 )
 
 func AddEmptySpace(data string) string {
@@ -114,4 +118,31 @@ func CheckExtension(filename, pattern string) bool {
 
 func RemoveFile(path string) error {
 	return os.Remove(path)
+}
+
+// 메일 보내기
+func SendEmail(to, subject, mailBody string) error {
+	// 메일 헤더와 본문 작성
+	// msg := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\n\r\n%s", config.GlobalConfig.Smtp.From, to, subject, mailBody)
+	msg := "MIME-Version: 1.0\r\n" +
+		"Content-Type: text/html; charset=\"UTF-8\"\r\n" +
+		fmt.Sprintf("From: %s\r\n", config.GlobalConfig.Smtp.From) +
+		fmt.Sprintf("To: %s\r\n", to) +
+		fmt.Sprintf("Subject: %s\r\n", subject) +
+		"\r\n" + mailBody
+
+	// 메일 전송
+	err := smtp.SendMail(
+		config.GlobalConfig.Smtp.Host+":"+config.GlobalConfig.Smtp.Port,
+		nil, // Auth
+		config.GlobalConfig.Smtp.From,
+		[]string{to},
+		[]byte(msg),
+	)
+
+	if err != nil {
+		fmt.Printf("메일 전송 실패: %v\n", err)
+		return err
+	}
+	return nil
 }

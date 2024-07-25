@@ -47,3 +47,27 @@ func (e *IncorrectPasswordError) Error() string {
 func NewIncorrectPasswordError() error {
 	return &IncorrectPasswordError{}
 }
+
+type UserNotActiveError struct {
+	Email string
+}
+
+func (e *UserNotActiveError) Error() string {
+	return fmt.Sprintf("user %s is not active", e.Email)
+}
+
+func NewUserNotActiveError(email string) error {
+	return &UserNotActiveError{Email: email}
+}
+
+type UserNotVerifiedError struct {
+	Email string
+}
+
+func (e *UserNotVerifiedError) Error() string {
+	return fmt.Sprintf("user %s is not verified", e.Email)
+}
+
+func NewUserNotVerifiedError(email string) error {
+	return &UserNotVerifiedError{Email: email}
+}
