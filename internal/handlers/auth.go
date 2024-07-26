@@ -33,7 +33,7 @@ func generateToken() string {
 // mail 메일 인증
 func sendVerificationEmail(to, token string) error {
 	subject := "Email Verification"
-	verificationLink := fmt.Sprintf("http://localhost:8080/verify?token=%s", token)
+	verificationLink := fmt.Sprintf("%s/verify?token=%s", config.GlobalConfig.Default.Host, token)
 	mailBody := fmt.Sprintf(`
 		<!DOCTYPE html>
 		<html>
@@ -164,8 +164,8 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.SetCookie(w, &http.Cookie{
-		Name: config.GlobalConfig.JWTTokenName,
-		// Name:     config.JWT_TOKEN_NAME,
+		// Name: config.GlobalConfig.JWTTokenName,
+		Name:     config.GlobalConfig.JWT.TokenName,
 		Value:    "",
 		Expires:  time.Now().Add(-time.Hour),
 		HttpOnly: true,

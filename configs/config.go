@@ -8,12 +8,21 @@ import (
 
 // Config는 JSON 구성 파일의 구조를 정의합니다.
 type Config struct {
-	JWTKey       string        `json:"jwt_key"`
-	JWTTokenName string        `json:"jwt_token_name"`
-	Ansible      AnsibleConfig `json:"ansible"`
-	MongoDB      MongoDBConfig `json:"mongodb"`
-	Erp          ErpConfig     `json:"erp"`
-	Smtp         SmtpConfig    `json:"smtp"`
+	Default DefaultConfig `json:"default"`
+	JWT     JWTConfig     `json:"jwt"`
+	Ansible AnsibleConfig `json:"ansible"`
+	MongoDB MongoDBConfig `json:"mongodb"`
+	Erp     ErpConfig     `json:"erp"`
+	Smtp    SmtpConfig    `json:"smtp"`
+}
+
+type DefaultConfig struct {
+	Host string `json:"host"`
+}
+
+type JWTConfig struct {
+	Key       string `json:"key"`
+	TokenName string `json:"token_name"`
 }
 
 type AnsibleConfig struct {

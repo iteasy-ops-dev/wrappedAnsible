@@ -94,25 +94,6 @@ func (a *Auth) SignUp() error {
 	return a.signUp()
 }
 
-// func (a *Auth) Login() error {
-// 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
-// 	// col := db.Collection(config.COLLECTION_AUTH)
-// 	filter := bson.M{"email": a.Email}
-// 	sr := col.FindOne(a.ctx, filter)
-// 	r, err := EvaluateAndDecodeSingleResult[Auth](sr)
-
-// 	if err != nil {
-// 		return NewUserNotFoundError(a.Email)
-// 	}
-
-// 	err = bcrypt.CompareHashAndPassword([]byte(r.Password), []byte(a.Password))
-// 	if err != nil {
-// 		return NewIncorrectPasswordError()
-// 	}
-
-// 	return nil
-// }
-
 func (a *Auth) Login() error {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
 	filter := bson.M{"email": a.Email}
