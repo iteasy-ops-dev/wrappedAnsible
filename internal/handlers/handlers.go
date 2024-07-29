@@ -14,7 +14,9 @@ func RegisterHandlers(mux *http.ServeMux) {
 
 	// with JWT
 	mux.HandleFunc("/functions", Functions)
-	mux.HandleFunc("/run", ExcuteAnsible)
-	mux.HandleFunc("/get", Get)
 	mux.HandleFunc("/erp-parser", ErpParser)
+	mux.HandleFunc("/run", ExcuteAnsible)
+	mux.HandleFunc("/logs", Logs)
+	mux.HandleFunc("/users", Users)
+	mux.HandleFunc("/update_active", UpdateUserActive)
 }

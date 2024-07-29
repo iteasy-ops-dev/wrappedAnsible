@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
 
@@ -25,6 +26,9 @@ type Auth struct {
 	// mail 메일 인증
 	VerificationToken string `bson:"verificationToken"`
 	Verified          bool   `bson:"verified"`
+
+	isOr   bool
+	isDesc bool
 
 	ctx context.Context
 }
@@ -128,6 +132,52 @@ func (a *Auth) VerifyEmail() error {
 
 	filter := bson.M{"verificationToken": a.VerificationToken}
 	update := bson.M{"$set": bson.M{"verified": true, "verificationToken": ""}}
+
+	result, err := col.UpdateOne(a.ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return errors.New("invalid or expired token")
+	}
+	return nil
+}
+
+func (a *Auth) Get() ([]Auth, error) {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+
+	var orderKey string = "atDate"
+
+	filter := bson.M{}
+
+	if a.Name != "" {
+		filter["name"] = a.Name
+	}
+
+	// 정렬 옵션 설정
+	sort := bson.M{orderKey: 1}
+	if a.isDesc {
+		sort = bson.M{orderKey: -1}
+	}
+
+	// 쿼리 옵션 설정
+	options := options.Find().SetSort(sort)
+
+	// 쿼리 수행
+	cursor, err := col.Find(a.ctx, filter, options)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return DecodeCursor[Auth](cursor)
+}
+
+func (a *Auth) UpdateUserActive(s bool) error {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+
+	filter := bson.M{"email": a.Email}
+	update := bson.M{"$set": bson.M{"isActive": !s}}
 
 	result, err := col.UpdateOne(a.ctx, filter, update)
 	if err != nil {

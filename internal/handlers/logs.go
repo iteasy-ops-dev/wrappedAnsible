@@ -8,7 +8,7 @@ import (
 	"iteasy.wrappedAnsible/internal/model"
 )
 
-func Get(w http.ResponseWriter, r *http.Request) {
+func Logs(w http.ResponseWriter, r *http.Request) {
 	if err := AllowMethod(w, r, http.MethodGet); err != nil {
 		return
 	}
