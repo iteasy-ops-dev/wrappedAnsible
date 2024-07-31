@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/smtp"
@@ -8,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"golang.org/x/exp/rand"
 	config "iteasy.wrappedAnsible/configs"
 )
 
@@ -145,4 +147,23 @@ func SendEmail(to, subject, mailBody string) error {
 		return err
 	}
 	return nil
+}
+
+func GenerateToken() string {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, 32)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
+}
+
+func GenerateTempPassword() (string, error) {
+	length := 12
+	randBytes := make([]byte, length)
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(randBytes), nil
 }

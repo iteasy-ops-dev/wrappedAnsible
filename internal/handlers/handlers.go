@@ -11,6 +11,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/verify", VerifyEmail)
 	mux.HandleFunc("/login", Login)
 	mux.HandleFunc("/logout", Logout)
+	mux.HandleFunc("/reset_password", ResetPassword)
 
 	// with JWT
 	mux.HandleFunc("/functions", Functions)
@@ -19,4 +20,5 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/logs", Logs)
 	mux.HandleFunc("/users", Users)
 	mux.HandleFunc("/update_active", UpdateUserActive)
+	mux.HandleFunc("/update_password", UpdateUserPassword)
 }

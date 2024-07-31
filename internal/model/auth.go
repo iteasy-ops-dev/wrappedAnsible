@@ -79,7 +79,6 @@ func (a *Auth) checkExistingUser() (bool, error) {
 
 func (a *Auth) signUp() error {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
-	// col := db.Collection(config.COLLECTION_AUTH)
 	_, err := col.InsertOne(a.ctx, a)
 	if err != nil {
 		return err
@@ -187,4 +186,25 @@ func (a *Auth) UpdateUserActive(s bool) error {
 		return errors.New("invalid or expired token")
 	}
 	return nil
+}
+
+func (a *Auth) updatePassword() error {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	filter := bson.M{"email": a.Email}
+	update := bson.M{"$set": bson.M{"password": a.Password}}
+
+	_, err := col.UpdateOne(a.ctx, filter, update)
+
+	return err
+}
+
+func (a *Auth) UpdatePassword() error {
+	isExist, err := a.checkExistingUser()
+	if err != nil {
+		return err
+	}
+	if !isExist {
+		return NewUserNotFoundError(a.Email)
+	}
+	return a.updatePassword()
 }

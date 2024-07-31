@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"golang.org/x/crypto/bcrypt"
 	"iteasy.wrappedAnsible/internal/model"
 )
 
@@ -66,5 +67,50 @@ func UpdateUserActive(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+}
+
+func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
+	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+		return
+	}
+	if err := ValidateToken(w, r); err != nil {
+		return
+	}
+
+	var req struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	// Hash the temporary password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		return
+	}
+
+	ctx := r.Context()
+	auth := model.NewAuth(ctx)
+	auth.SetEmail(req.Email)
+	auth.SetPassword(string(hashedPassword))
+
+	// Update user's password in the database
+	if err := auth.UpdatePassword(); err != nil {
+		switch err.(type) {
+		case *model.UserNotFoundError:
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	w.WriteHeader(http.StatusOK)
 }

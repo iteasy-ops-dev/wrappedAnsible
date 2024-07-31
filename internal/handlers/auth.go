@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
-	"golang.org/x/exp/rand"
 
 	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/model"
@@ -18,16 +17,6 @@ type User struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 	Name     string `json:"name"`
-}
-
-// mail 메일 인증
-func generateToken() string {
-	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, 32)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-	return string(b)
 }
 
 // mail 메일 인증
@@ -42,6 +31,22 @@ func sendVerificationEmail(to, token string) error {
 			<p><a href="%s">Verify Email</a></p>
 		</body>
 		</html>`, verificationLink)
+
+	if err := utils.SendEmail(to, subject, mailBody); err != nil {
+		return err
+	}
+	return nil
+}
+
+func sendResetPasswordEmail(to, tempPassword string) error {
+	subject := "Password Reset"
+	mailBody := fmt.Sprintf(`
+		<!DOCTYPE html>
+		<html>
+		<body>
+			<p>Your temporary password is: <b>%s</b></p>
+		</body>
+		</html>`, tempPassword)
 
 	if err := utils.SendEmail(to, subject, mailBody); err != nil {
 		return err
@@ -68,7 +73,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// mail 메일 인증
-	verificationToken := generateToken()
+	verificationToken := utils.GenerateToken()
 
 	a := model.NewAuth(ctx)
 	a.SetEmail(s.Email)
@@ -171,6 +176,60 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Path:     "/",
 	})
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func ResetPassword(w http.ResponseWriter, r *http.Request) {
+	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+		return
+	}
+	var req struct {
+		Email string `json:"email"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	// Generate temporary password
+	tempPassword, err := utils.GenerateTempPassword()
+	if err != nil {
+		http.Error(w, "Error generating temporary password", http.StatusInternalServerError)
+		return
+	}
+
+	// Hash the temporary password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(tempPassword), bcrypt.DefaultCost)
+	if err != nil {
+		http.Error(w, "Error hashing password", http.StatusInternalServerError)
+		return
+	}
+
+	ctx := r.Context()
+	auth := model.NewAuth(ctx)
+	auth.SetEmail(req.Email)
+	auth.SetPassword(string(hashedPassword))
+
+	// Send temporary password to user's email
+	err = sendResetPasswordEmail(req.Email, tempPassword)
+	if err != nil {
+		http.Error(w, "Error sending email", http.StatusInternalServerError)
+		return
+	}
+
+	// Update user's password in the database
+	if err := auth.UpdatePassword(); err != nil {
+		switch err.(type) {
+		case *model.UserNotFoundError:
+			http.Error(w, err.Error(), http.StatusNotFound)
+			return
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 
 	w.WriteHeader(http.StatusOK)
 }
