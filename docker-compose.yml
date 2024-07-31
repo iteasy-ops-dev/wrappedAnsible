@@ -22,7 +22,7 @@ services:
     #   - 8080:8080
     environment:
       - TZ=Asia/Seoul
-      - ENV=${ENV}
+      - ENVIRONMENT=${ENVIRONMENT}
     depends_on:
       - mongo
     networks:
