@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"log"
+	"fmt"
 	"os"
 )
 
@@ -17,7 +17,9 @@ type Config struct {
 }
 
 type DefaultConfig struct {
-	Host string `json:"host"`
+	Host     string `json:"host"`
+	Admin    string `json:"admin"`
+	Password string `json:"password"`
 }
 
 type JWTConfig struct {
@@ -79,10 +81,21 @@ var GlobalConfig *Config
 // init 함수에서 전역 변수를 초기화합니다.
 func init() {
 	var err error
-	GlobalConfig, err = LoadConfig("/config.json")
-	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
+	env := os.Getenv("ENVIRONMENT")
+	if env == "prod" {
+		env = "prod"
+	} else {
+		env = "dev"
 	}
+
+	configFile := "/config." + env + ".json"
+
+	GlobalConfig, err = LoadConfig(configFile)
+	if err != nil {
+		panic(fmt.Sprintf("Error loading config: %v", err))
+	}
+
+	fmt.Printf("✅ Setup Config Success: Type is %s\n", env)
 }
 
 // LoadConfig는 구성 파일을 읽어와 Config 구조체로 반환합니다.

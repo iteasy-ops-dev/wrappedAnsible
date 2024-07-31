@@ -7,30 +7,27 @@ services:
     restart: always
     ports:
       - 27017:27017
+    volumes:
+      - ./data:/data/db
+    networks:
+      - iteasyopsnetwork
 
-  ansible:
+  backend:
     build: 
       context: .
-    image: ansible
-    container_name: ansible
+    image: backend
+    container_name: backend
     restart: always
+    # ports:
+    #   - 8080:8080
     environment:
       - TZ=Asia/Seoul
-    ports:
-      - 8080:8080
+      - ENV=${ENV}
     depends_on:
       - mongo
+    networks:
+    - iteasyopsnetwork
 
-  # nginx:
-  #   build: 
-  #     context: ../iteasy.nocssFrontWithReact
-  #   image: nginx
-  #   container_name: nginx
-  #   restart: always
-  #   environment:
-  #     - TZ=Asia/Seoul
-  #   ports:
-  #     - 80:80
-  #   depends_on:
-  #     - mongo
-  #     - ansible
+networks:
+  iteasyopsnetwork:
+    external: true

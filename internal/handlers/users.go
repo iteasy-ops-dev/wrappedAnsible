@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"golang.org/x/crypto/bcrypt"
 	"iteasy.wrappedAnsible/internal/model"
+	"iteasy.wrappedAnsible/pkg/utils"
 )
 
 func Users(w http.ResponseWriter, r *http.Request) {
@@ -89,7 +89,8 @@ func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Hash the temporary password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	hashedPassword, err := utils.HashingPassword(req.Password)
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Error hashing password", http.StatusInternalServerError)
 		return

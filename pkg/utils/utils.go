@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/rand"
 	config "iteasy.wrappedAnsible/configs"
 )
@@ -166,4 +167,8 @@ func GenerateTempPassword() (string, error) {
 		return "", err
 	}
 	return base64.URLEncoding.EncodeToString(randBytes), nil
+}
+
+func HashingPassword(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }

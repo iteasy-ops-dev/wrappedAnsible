@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
-
 	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/model"
 	"iteasy.wrappedAnsible/pkg/utils"
@@ -66,7 +64,8 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(s.Password), bcrypt.DefaultCost)
+	hashedPassword, err := utils.HashingPassword(s.Password)
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(s.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
 		return
@@ -201,7 +200,8 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Hash the temporary password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(tempPassword), bcrypt.DefaultCost)
+	hashedPassword, err := utils.HashingPassword(tempPassword)
+	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(tempPassword), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Error hashing password", http.StatusInternalServerError)
 		return

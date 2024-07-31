@@ -10,10 +10,12 @@ import (
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
+	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/ansible"
 	"iteasy.wrappedAnsible/internal/handlers"
 	"iteasy.wrappedAnsible/internal/model"
 	"iteasy.wrappedAnsible/internal/router"
+	"iteasy.wrappedAnsible/pkg/utils"
 )
 
 var (
@@ -25,6 +27,31 @@ func _mongo() {
 	if client != nil {
 		model.PingMongoDB(client)
 	}
+
+	adminEmail := config.GlobalConfig.Default.Admin
+	adminName := "admin"
+	password := config.GlobalConfig.Default.Password
+
+	hashedPassword, _ := utils.HashingPassword(password)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	a := model.NewAuth(ctx)
+	a.SetEmail(adminEmail)
+	a.SetName(adminName)
+	a.SetPassword(string(hashedPassword))
+
+	if err := a.SignUp(); err != nil {
+
+		switch err.(type) {
+		case *model.AlreadyExistsError:
+			return
+		default:
+			panic(err.Error())
+		}
+	}
+
 }
 
 func _ansible() {
