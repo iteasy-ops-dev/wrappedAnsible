@@ -149,8 +149,8 @@ func (a *Auth) Get() ([]Auth, error) {
 
 	filter := bson.M{}
 
-	if a.Name != "" {
-		filter["name"] = a.Name
+	if a.Email != "" {
+		filter["email"] = a.Email
 	}
 
 	// 정렬 옵션 설정
