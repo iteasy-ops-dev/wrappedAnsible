@@ -89,7 +89,7 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 	e.createInventory()
 	e.createPlaybook()
 	// ansible 구동 후 임시 인벤토리 파일 삭제
-	// defer utils.RemoveFile(e.inventory)
+	defer utils.RemoveFile(e.inventory)
 
 	fmt.Printf(
 		"⚙️ Used Playbook: %s\n⚙️ Extra Vars: %s\n",
