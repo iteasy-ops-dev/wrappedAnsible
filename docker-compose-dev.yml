@@ -18,11 +18,10 @@ services:
     image: backend
     container_name: backend
     restart: always
-    # ports:
-    #   - 8080:8080
+    ports:
+      - 8080:8080
     environment:
       - TZ=Asia/Seoul
-      - ENVIRONMENT=${ENVIRONMENT}
     depends_on:
       - mongo
     networks:

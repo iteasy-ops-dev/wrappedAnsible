@@ -140,6 +140,7 @@ func (e *ErpParser) ToBytes() []byte {
 }
 
 // TODO: 쓰리웨이 전용
+// TODO: 범용적으로 활용 할 수 있는 방안을 찾아야 함.
 func extractInfo(text string) (Info, error) {
 	info := Info{}
 
