@@ -14,6 +14,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/reset_password", ResetPassword)
 
 	// with JWT
+	mux.HandleFunc("/extend_extension", ExtendJWT)
 	mux.HandleFunc("/functions", Functions)
 	mux.HandleFunc("/erp-parser", ErpParser)
 	mux.HandleFunc("/run", ExcuteAnsible)

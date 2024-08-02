@@ -108,6 +108,8 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 	done := make(chan struct{})
 	defer close(done)
 
+	// TODO: 강제로 종료되었을 경우 이후 어떻게 처리할지 정리
+	// 예를 들어 DB에 따로 구분하여 정리한다던지
 	go func() {
 		select {
 		case <-e.Ctx.Done():
