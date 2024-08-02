@@ -7,10 +7,6 @@
   scm: git
   version: main
 
-- src: https://github.com/geerlingguy/ansible-role-apache.git
-  scm: git
-  version: master
-
 - src: https://github.com/iteasy-ops-dev/ansible.roles.change_ssl.git
   scm: git
   version: main
@@ -20,5 +16,9 @@
   version: main
 
 - src: https://github.com/iteasy-ops-dev/ansible.roles.webhost_manager.git
+  scm: git
+  version: main
+  
+- src: https://github.com/iteasy-ops-dev/ansible.roles.account_manager.git
   scm: git
   version: main
