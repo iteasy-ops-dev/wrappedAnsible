@@ -50,7 +50,7 @@ func IssueJWT(w http.ResponseWriter, r *http.Request, s User) {
 
 // ExtendJWT handles the extension of the existing JWT token
 func ExtendJWT(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodGet); err != nil {
+	if err := AllowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
 
