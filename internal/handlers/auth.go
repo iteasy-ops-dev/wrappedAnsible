@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,10 +10,14 @@ import (
 	"iteasy.wrappedAnsible/pkg/utils"
 )
 
-type User struct {
+type UserReq struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 	Name     string `json:"name"`
+}
+
+type ResetPasswordReq struct {
+	Email string `json:"email"`
 }
 
 // mail 메일 인증
@@ -56,15 +59,13 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	if err := AllowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	ctx := r.Context()
-	var s User
-	err := json.NewDecoder(r.Body).Decode(&s)
+	b, err := utils.ParseRequestBody[UserReq](r)
 	if err != nil {
-		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	hashedPassword, err := utils.HashingPassword(s.Password)
+	hashedPassword, err := utils.HashingPassword(b.Password)
 	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(s.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
@@ -74,9 +75,9 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	// mail 메일 인증
 	verificationToken := utils.GenerateToken()
 
-	a := model.NewAuth(ctx)
-	a.SetEmail(s.Email)
-	a.SetName(s.Name)
+	a := model.NewAuth(r.Context())
+	a.SetEmail(b.Email)
+	a.SetName(b.Name)
 	a.SetPassword(string(hashedPassword))
 	// mail 메일 인증
 	a.SetVerificationToken(verificationToken)
@@ -93,7 +94,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// mail 메일 인증
-	if err := sendVerificationEmail(s.Email, verificationToken); err != nil {
+	if err := sendVerificationEmail(b.Email, verificationToken); err != nil {
 		http.Error(w, "Failed to send verification email", http.StatusInternalServerError)
 		return
 	}
@@ -103,14 +104,16 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 // mail 메일 인증
 func VerifyEmail(w http.ResponseWriter, r *http.Request) {
+	if err := AllowMethod(w, r, http.MethodGet); err != nil {
+		return
+	}
 	token := r.URL.Query().Get("token")
 	if token == "" {
 		http.Error(w, "Token is required", http.StatusBadRequest)
 		return
 	}
 
-	ctx := r.Context()
-	a := model.NewAuth(ctx)
+	a := model.NewAuth(r.Context())
 	a.SetVerificationToken(token)
 
 	if err := a.VerifyEmail(); err != nil {
@@ -126,19 +129,18 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if err := AllowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	ctx := r.Context()
-	var s User
-	err := json.NewDecoder(r.Body).Decode(&s)
+	b, err := utils.ParseRequestBody[UserReq](r)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	l := model.NewAuth(ctx)
-	l.SetEmail(s.Email)
-	l.SetPassword(s.Password)
+	a := model.NewAuth(r.Context())
+	a.SetEmail(b.Email)
+	a.SetPassword(b.Password)
 
-	if err := l.Login(); err != nil {
+	l, err := a.Login()
+	if err != nil {
 		switch err.(type) {
 		case *model.UserNotFoundError:
 			http.Error(w, err.Error(), http.StatusNotFound)
@@ -158,9 +160,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	IssueJWT(w, r, s)
+	IssueJWT(w, r, l)
 }
 
+// TODO: 로그아웃시 프론트에서 쿠키 제거하는 함수 사용중.
+// 해당 함수를 어떻게 처리 할 것인가
 func Logout(w http.ResponseWriter, r *http.Request) {
 	// TODO: jwt 만료시키기
 	if err := AllowMethod(w, r, http.MethodPost); err != nil {
@@ -183,12 +187,9 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	if err := AllowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	var req struct {
-		Email string `json:"email"`
-	}
-	err := json.NewDecoder(r.Body).Decode(&req)
+	b, err := utils.ParseRequestBody[ResetPasswordReq](r)
 	if err != nil {
-		http.Error(w, "Invalid request", http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -207,20 +208,19 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
-	auth := model.NewAuth(ctx)
-	auth.SetEmail(req.Email)
-	auth.SetPassword(string(hashedPassword))
+	a := model.NewAuth(r.Context())
+	a.SetEmail(b.Email)
+	a.SetPassword(string(hashedPassword))
 
 	// Send temporary password to user's email
-	err = sendResetPasswordEmail(req.Email, tempPassword)
+	err = sendResetPasswordEmail(b.Email, tempPassword)
 	if err != nil {
 		http.Error(w, "Error sending email", http.StatusInternalServerError)
 		return
 	}
 
 	// Update user's password in the database
-	if err := auth.UpdatePassword(); err != nil {
+	if err := a.UpdatePassword(); err != nil {
 		switch err.(type) {
 		case *model.UserNotFoundError:
 			http.Error(w, err.Error(), http.StatusNotFound)

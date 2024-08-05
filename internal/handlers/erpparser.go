@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 
 	"iteasy.wrappedAnsible/internal/erpparser"
+	"iteasy.wrappedAnsible/pkg/utils"
 )
 
-type RequestData struct {
+type ErpParserReq struct {
 	URL string `json:"url"` // JSON의 "url" 필드를 매핑
 }
 
@@ -19,13 +19,18 @@ func ErpParser(w http.ResponseWriter, r *http.Request) {
 	if err := ValidateToken(w, r); err != nil {
 		return
 	}
-
-	// JSON 데이터 파싱
-	var data RequestData
-	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+	data, err := utils.ParseRequestBody[ErpParserReq](r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	// JSON 데이터 파싱
+	// var data ErpParserReq
+	// if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+	// 	http.Error(w, "Error decoding JSON", http.StatusBadRequest)
+	// 	return
+	// }
 
 	// URL 값 추출
 	url := data.URL

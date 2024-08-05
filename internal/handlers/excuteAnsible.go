@@ -34,8 +34,7 @@ func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	ctx := r.Context()
-	g, ctx := errgroup.WithContext(ctx)
+	g, ctx := errgroup.WithContext(r.Context())
 
 	p := ansible.GennerateHttpRequestType{
 		Ctx: ctx,

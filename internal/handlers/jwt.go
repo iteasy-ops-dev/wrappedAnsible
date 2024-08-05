@@ -7,6 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	config "iteasy.wrappedAnsible/configs"
+	"iteasy.wrappedAnsible/internal/model"
 )
 
 const (
@@ -18,12 +19,14 @@ var JWT_KEY = []byte(config.GlobalConfig.JWT.Key)
 // TODO: 구조체를 어떻게 정리할지 생각해야함
 type Claims struct {
 	Email string `json:"email"`
+	Name  string `json:"name"`
 	jwt.StandardClaims
 }
 
-func IssueJWT(w http.ResponseWriter, r *http.Request, s User) {
+func IssueJWT(w http.ResponseWriter, r *http.Request, s *model.Auth) {
 	expirationTime := time.Now().Add(JWT_EXPIRE_TIME)
 	claims := &Claims{
+		Name:  s.Name,
 		Email: s.Email,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),

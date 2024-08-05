@@ -18,6 +18,7 @@ type extendAnsible struct {
 	// Public
 	Ctx         context.Context
 	Type        string   // Require: Name of playbook
+	Email       string   // Require: Worker
 	Name        string   // Require: Worker
 	IPs         []string // Require: ips
 	Account     string   // Require: account

@@ -20,6 +20,7 @@ type AnsibleProcessStatusDocument struct {
 	Type      string                 `bson:"type"`
 	IPs       []string               `bson:"ips"`
 	Name      string                 `bson:"name"`
+	Email     string                 `bson:"email"`
 	Account   string                 `bson:"account"`
 	Status    bool                   `bson:"status"`
 	Payload   string                 `bson:"payload"`
@@ -38,6 +39,7 @@ func _newAnsibleProcessStatus(a *ansible.AnsibleProcessStatus) *AnsibleProcessSt
 		Type:      a.Type,
 		IPs:       a.IPs,
 		Name:      a.Name,
+		Email:     a.Email,
 		Account:   a.Account,
 		Status:    a.Status,
 		Payload:   a.Payload,
@@ -135,6 +137,7 @@ func (a *AnsibleProcessStatusDocument) Put() error {
 }
 
 // TODO: 페이징을 할 것인가
+// TODO: 네이밍이 이게 뭐냐? 제대로 바꾸자
 func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, error) {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.AnsibleProcessStatus)
 
@@ -153,6 +156,9 @@ func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, er
 	}
 	if a.Name != "" {
 		filter["name"] = a.Name
+	}
+	if a.Email != "" {
+		filter["email"] = a.Email
 	}
 	if a.Account != "" {
 		filter["account"] = a.Account

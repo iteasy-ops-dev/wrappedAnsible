@@ -104,6 +104,8 @@ func _setField(e *extendAnsible, key, value string) error {
 		e.Type = value
 	case "name":
 		e.Name = value
+	case "email":
+		e.Email = value
 	case "account":
 		e.Account = value
 	case "password":

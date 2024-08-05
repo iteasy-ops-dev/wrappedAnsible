@@ -9,6 +9,7 @@ type AnsibleProcessStatus struct {
 	Type     string
 	IPs      []string
 	Name     string
+	Email    string
 	Account  string
 	Status   bool
 	Payload  string
@@ -22,6 +23,7 @@ func newAnsibleProcessStatus(e *extendAnsible) *AnsibleProcessStatus {
 		Type:     e.Type,
 		IPs:      e.IPs,
 		Name:     e.Name,
+		Email:    e.Email,
 		Account:  e.Account,
 		Status:   e.status,
 		Payload:  e.payload,

@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -26,6 +27,8 @@ type Auth struct {
 	// mail 메일 인증
 	VerificationToken string `bson:"verificationToken"`
 	Verified          bool   `bson:"verified"`
+
+	LoginFailureCount int `bson:"loginFailureCount"`
 
 	isOr   bool
 	isDesc bool
@@ -97,32 +100,74 @@ func (a *Auth) SignUp() error {
 	return a.signUp()
 }
 
-func (a *Auth) Login() error {
+func (a *Auth) _incrementLoginFailure() error {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	filter := bson.M{"email": a.Email}
+	update := bson.M{
+		"$inc": bson.M{"loginFailureCount": 1}, // 실패 횟수 증가
+	}
+
+	// 로그인 실패 횟수 업데이트
+	_, err := col.UpdateOne(a.ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to update login failure count: %v", err)
+	}
+
+	// 현재 로그인 실패 횟수 가져오기
+	sr := col.FindOne(a.ctx, filter)
+	user, err := EvaluateAndDecodeSingleResult[Auth](sr)
+	if err != nil {
+		return fmt.Errorf("failed to fetch user after login failure increment: %v", err)
+	}
+
+	// 5번 실패 시 계정 비활성화
+	if user.LoginFailureCount >= 5 {
+		update = bson.M{"$set": bson.M{"isActive": false}}
+		_, err := col.UpdateOne(a.ctx, filter, update)
+		if err != nil {
+			return fmt.Errorf("failed to deactivate account after 5 login failures: %v", err)
+		}
+	}
+
+	return nil
+}
+
+func (a *Auth) Login() (*Auth, error) {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
 	filter := bson.M{"email": a.Email}
 	sr := col.FindOne(a.ctx, filter)
 	r, err := EvaluateAndDecodeSingleResult[Auth](sr)
 
 	if err != nil {
-		return NewUserNotFoundError(a.Email)
+		return r, NewUserNotFoundError(a.Email)
 	}
 
 	// Check if the user is active
 	if !r.IsActive {
-		return NewUserNotActiveError(a.Email)
+		return r, NewUserNotActiveError(a.Email)
 	}
 
 	// Check if the user is verified
 	if !r.Verified {
-		return NewUserNotVerifiedError(a.Email)
+		return r, NewUserNotVerifiedError(a.Email)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(r.Password), []byte(a.Password))
 	if err != nil {
-		return NewIncorrectPasswordError()
+		// 비밀번호가 일치하지 않으면 로그인 실패 처리
+		if incrementErr := a._incrementLoginFailure(); incrementErr != nil {
+			return nil, incrementErr
+		}
+		return r, NewIncorrectPasswordError()
 	}
 
-	return nil
+	update := bson.M{"$set": bson.M{"loginFailureCount": 0}}
+	_, err = col.UpdateOne(a.ctx, filter, update)
+	if err != nil {
+		return r, fmt.Errorf("failed to reset login failure count: %v", err)
+	}
+
+	return r, nil
 }
 
 // mail 메일 인증
@@ -142,6 +187,7 @@ func (a *Auth) VerifyEmail() error {
 	return nil
 }
 
+// TODO: 네이밍이 이게 뭐냐? 제대로 바꾸자
 func (a *Auth) Get() ([]Auth, error) {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
 

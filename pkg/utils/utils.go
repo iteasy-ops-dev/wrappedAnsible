@@ -2,8 +2,11 @@ package utils
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"net/smtp"
 	"os"
 	"regexp"
@@ -171,4 +174,19 @@ func GenerateTempPassword() (string, error) {
 
 func HashingPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+}
+
+// TODO: 테스트 필요
+func ParseRequestBody[T any](r *http.Request) (T, error) {
+	var body T
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		return body, fmt.Errorf("failed to read request body: %v", err)
+	}
+	defer r.Body.Close()
+
+	if err := json.Unmarshal(data, &body); err != nil {
+		return body, fmt.Errorf("failed to unmarshal JSON: %v", err)
+	}
+	return body, nil
 }
