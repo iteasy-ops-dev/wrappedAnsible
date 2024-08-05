@@ -17,6 +17,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/extend_extension", ExtendJWT)
 	mux.HandleFunc("/functions", Functions)
 	mux.HandleFunc("/erp-parser", ErpParser)
+	mux.HandleFunc("/dashboad", Dashboard)
 	mux.HandleFunc("/run", ExcuteAnsible)
 	mux.HandleFunc("/logs", Logs)
 	mux.HandleFunc("/users", Users)
