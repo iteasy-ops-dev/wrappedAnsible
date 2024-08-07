@@ -41,7 +41,7 @@ RUN pip3 install --upgrade pip && \
     pip3 install ansible jinja2
 
 # Ansible Galaxy Collection 설치
-RUN ansible-galaxy collection install community.general
+RUN ansible-galaxy collection install community.general ansible.posix
 
 # 작업 디렉토리 설정 및 파일 복사
 WORKDIR /root

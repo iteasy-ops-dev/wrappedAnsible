@@ -40,6 +40,7 @@ func _mongo() {
 	a := model.NewAuth(ctx)
 	a.SetEmail(adminEmail)
 	a.SetName(adminName)
+	a.SetVerified(true)
 	a.SetPassword(string(hashedPassword))
 
 	if err := a.SignUp(); err != nil {

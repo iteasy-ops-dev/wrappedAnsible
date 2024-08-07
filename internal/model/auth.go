@@ -309,6 +309,9 @@ func (a *Auth) SetName(s string) {
 func (a *Auth) SetPassword(s string) {
 	a.Password = s
 }
+func (a *Auth) SetVerified(b bool) {
+	a.Verified = b
+}
 
 func (a *Auth) SetVerificationToken(token string) {
 	a.VerificationToken = token
