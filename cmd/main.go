@@ -10,12 +10,10 @@ import (
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
-	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/ansible"
 	"iteasy.wrappedAnsible/internal/handlers"
 	"iteasy.wrappedAnsible/internal/model"
 	"iteasy.wrappedAnsible/internal/router"
-	"iteasy.wrappedAnsible/pkg/utils"
 )
 
 var (
@@ -28,30 +26,31 @@ func _mongo() {
 		model.PingMongoDB(client)
 	}
 
-	adminEmail := config.GlobalConfig.Default.Admin
-	adminName := "admin"
-	password := config.GlobalConfig.Default.Password
+	// TODO: 초기화 함수에서 계정을 생성하는것에 대한 버그? 찾아봐야함/
+	// adminEmail := config.GlobalConfig.Default.Admin
+	// adminName := "admin"
+	// password := config.GlobalConfig.Default.Password
 
-	hashedPassword, _ := utils.HashingPassword(password)
+	// hashedPassword, _ := utils.HashingPassword(password)
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
+	// ctx, cancel := context.WithCancel(context.Background())
+	// defer cancel()
 
-	a := model.NewAuth(ctx)
-	a.SetEmail(adminEmail)
-	a.SetName(adminName)
-	a.SetVerified(true)
-	a.SetPassword(string(hashedPassword))
+	// a := model.NewAuth(ctx)
+	// a.SetEmail(adminEmail)
+	// a.SetName(adminName)
+	// a.SetVerified(true)
+	// a.SetPassword(string(hashedPassword))
 
-	if err := a.SignUp(); err != nil {
+	// if err := a.SignUp(); err != nil {
 
-		switch err.(type) {
-		case *model.AlreadyExistsError:
-			return
-		default:
-			panic(err.Error())
-		}
-	}
+	// 	switch err.(type) {
+	// 	case *model.AlreadyExistsError:
+	// 		return
+	// 	default:
+	// 		panic(err.Error())
+	// 	}
+	// }
 
 }
 
