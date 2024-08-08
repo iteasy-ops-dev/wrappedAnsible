@@ -71,3 +71,27 @@ func (e *UserNotVerifiedError) Error() string {
 func NewUserNotVerifiedError(email string) error {
 	return &UserNotVerifiedError{Email: email}
 }
+
+type UserLogoutError struct {
+	Email string
+}
+
+func (e *UserLogoutError) Error() string {
+	return fmt.Sprintf("user %s: logout Error", e.Email)
+}
+
+func NewUserLogoutError(email string) error {
+	return &UserLogoutError{Email: email}
+}
+
+type AlreadyLoginError struct {
+	Email string
+}
+
+func (e *AlreadyLoginError) Error() string {
+	return fmt.Sprintf("user %s is already logged in", e.Email)
+}
+
+func NewAlreadyLoginError(email string) error {
+	return &AlreadyLoginError{Email: email}
+}

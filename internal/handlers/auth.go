@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http"
-	"time"
 
 	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/model"
@@ -17,6 +16,9 @@ type UserReq struct {
 }
 
 type ResetPasswordReq struct {
+	Email string `json:"email"`
+}
+type LogoutReq struct {
 	Email string `json:"email"`
 }
 
@@ -79,6 +81,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	a.SetEmail(b.Email)
 	a.SetName(b.Name)
 	a.SetPassword(string(hashedPassword))
+	a.SetActive(true)
 	// mail 메일 인증
 	a.SetVerificationToken(verificationToken)
 
@@ -139,7 +142,13 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	a.SetEmail(b.Email)
 	a.SetPassword(b.Password)
 
-	l, err := a.Login()
+	userAgent := r.Header.Get("User-Agent")
+	ipAddress := r.RemoteAddr
+	if forwardedFor := r.Header.Get("X-Forwarded-For"); forwardedFor != "" {
+		ipAddress = forwardedFor
+	}
+
+	l, err := a.Login(userAgent, ipAddress)
 	if err != nil {
 		switch err.(type) {
 		case *model.UserNotFoundError:
@@ -154,8 +163,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		case *model.UserNotVerifiedError:
 			http.Error(w, err.Error(), http.StatusForbidden)
 			return
+		case *model.AlreadyLoginError:
+			http.Error(w, err.Error(), http.StatusForbidden)
+			return
 		default:
-			http.Error(w, "Failed to login user", http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 	}
@@ -163,22 +175,29 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	IssueJWT(w, r, l)
 }
 
-// TODO: 로그아웃시 프론트에서 쿠키 제거하는 함수 사용중.
-// 해당 함수를 어떻게 처리 할 것인가
 func Logout(w http.ResponseWriter, r *http.Request) {
-	// TODO: jwt 만료시키기
 	if err := AllowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
+	b, err := utils.ParseRequestBody[LogoutReq](r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	http.SetCookie(w, &http.Cookie{
-		// Name: config.GlobalConfig.JWTTokenName,
-		Name:     config.GlobalConfig.JWT.TokenName,
-		Value:    "",
-		Expires:  time.Now().Add(-time.Hour),
-		HttpOnly: true,
-		Path:     "/",
-	})
+	a := model.NewAuth(r.Context())
+	a.SetEmail(b.Email)
+
+	if err := a.Logout(); err != nil {
+		switch err.(type) {
+		case *model.UserLogoutError:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		default:
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
 
 	w.WriteHeader(http.StatusOK)
 }

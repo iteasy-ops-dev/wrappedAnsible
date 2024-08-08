@@ -14,18 +14,37 @@ import (
 	config "iteasy.wrappedAnsible/configs"
 )
 
+type AccessLog struct {
+	Agent      string `bson:"agent"`
+	Ip         string `bson:"ip"`
+	AccessTime int64  `bson:"accessTime"`
+}
+
+type AuthReq struct {
+	Email             string `bson:"email"`
+	Name              string `bson:"name"`
+	AtCreateDate      int64  `bson:"atCreateDate"`
+	IsActive          bool   `bson:"isActive"`
+	Verified          bool   `bson:"verified"`
+	LoginFailureCount int    `bson:"loginFailureCount"`
+
+	AccessLog []AccessLog `bson:"accessLog"`
+}
+
 // Auth는 인증 관련 정보를 담는 구조체입니다.
 type Auth struct {
 	ID                string `bson:"_id,omitempty"`
 	Email             string `bson:"email"`
 	Name              string `bson:"name"`
 	Password          string `bson:"password"`
-	AtDate            int64  `bson:"atDate"`
+	AtCreateDate      int64  `bson:"atCreateDate"`
 	IsActive          bool   `bson:"isActive"`
 	IsAdmin           bool   `bson:"isAdmin"`
 	VerificationToken string `bson:"verificationToken"`
 	Verified          bool   `bson:"verified"`
 	LoginFailureCount int    `bson:"loginFailureCount"`
+
+	AccessLog []AccessLog `bson:"accessLog"`
 
 	isOr   bool
 	isDesc bool
@@ -36,10 +55,8 @@ type Auth struct {
 // NewAuth는 새로운 Auth 구조체를 초기화합니다.
 func NewAuth(ctx context.Context) *Auth {
 	return &Auth{
-		IsActive: true,
-		IsAdmin:  false,
-		AtDate:   time.Now().Unix(),
-		ctx:      ctx,
+		AtCreateDate: time.Now().Unix(),
+		ctx:          ctx,
 	}
 }
 
@@ -54,6 +71,15 @@ func (a *Auth) SetPassword(s string) {
 }
 func (a *Auth) SetVerified(b bool) {
 	a.Verified = b
+}
+func (a *Auth) SetActive(b bool) {
+	a.IsActive = b
+}
+func (a *Auth) SetIsAdmin(b bool) {
+	a.IsAdmin = b
+}
+func (a *Auth) SetInitAccessLog() {
+	a.AccessLog = []AccessLog{}
 }
 
 func (a *Auth) SetVerificationToken(token string) {
@@ -76,6 +102,7 @@ func (a *Auth) checkExistingUser() (bool, error) {
 
 func (a *Auth) signUp() error {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	a.SetInitAccessLog()
 	_, err := col.InsertOne(a.ctx, a)
 	if err != nil {
 		return err
@@ -123,7 +150,39 @@ func (a *Auth) _incrementLoginFailure() error {
 	return nil
 }
 
-func (a *Auth) Login() (*Auth, error) {
+func InitializeAccessLogs() error {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	filter := bson.M{"accessLog": bson.M{"$exists": false}}
+	update := bson.M{"$set": bson.M{"accessLog": []AccessLog{}}}
+
+	_, err := col.UpdateMany(context.Background(), filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to initialize accessLog fields: %v", err)
+	}
+	return nil
+}
+
+func (a *Auth) _addAccessLog(agent, ip string) error {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	filter := bson.M{"email": a.Email}
+	accessLog := AccessLog{
+		Agent:      agent,
+		Ip:         ip,
+		AccessTime: time.Now().Unix(),
+	}
+	update := bson.M{
+		"$push": bson.M{"accessLog": accessLog},
+	}
+
+	_, err := col.UpdateOne(a.ctx, filter, update)
+	if err != nil {
+		return fmt.Errorf("failed to add access log: %v", err)
+	}
+
+	return nil
+}
+
+func (a *Auth) Login(agent, ip string) (*Auth, error) {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
 	filter := bson.M{"email": a.Email}
 	sr := col.FindOne(a.ctx, filter)
@@ -131,11 +190,9 @@ func (a *Auth) Login() (*Auth, error) {
 	if err := sr.Decode(&r); err != nil {
 		return nil, NewUserNotFoundError(a.Email)
 	}
-
 	if !r.IsActive {
 		return nil, NewUserNotActiveError(a.Email)
 	}
-
 	if !r.Verified {
 		return nil, NewUserNotVerifiedError(a.Email)
 	}
@@ -149,9 +206,15 @@ func (a *Auth) Login() (*Auth, error) {
 	}
 
 	update := bson.M{"$set": bson.M{"loginFailureCount": 0}}
+
 	_, err = col.UpdateOne(a.ctx, filter, update)
 	if err != nil {
 		return nil, fmt.Errorf("failed to reset login failure count: %v", err)
+	}
+
+	// AccessLog 추가
+	if err := a._addAccessLog(agent, ip); err != nil {
+		return nil, fmt.Errorf("failed to add access log: %v", err)
 	}
 
 	return &r, nil
@@ -172,9 +235,10 @@ func (a *Auth) VerifyEmail() error {
 	return nil
 }
 
-func (a *Auth) Get() ([]Auth, error) {
+func (a *Auth) Get() ([]AuthReq, error) {
+	// func (a *Auth) Get() ([]Auth, error) {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
-	var orderKey string = "atDate"
+	var orderKey string = "AtCreateDate"
 	filter := bson.M{}
 
 	if a.Email != "" {
@@ -192,7 +256,8 @@ func (a *Auth) Get() ([]Auth, error) {
 		return nil, err
 	}
 
-	var results []Auth
+	var results []AuthReq
+	// var results []Auth
 	if err := cursor.All(a.ctx, &results); err != nil {
 		return nil, err
 	}
@@ -233,4 +298,20 @@ func (a *Auth) UpdatePassword() error {
 		return NewUserNotFoundError(a.Email)
 	}
 	return a.updatePassword()
+}
+
+// TODO: 보류
+func (a *Auth) Logout() error {
+	col := db.Collection(config.GlobalConfig.MongoDB.Collections.Auth)
+	filter := bson.M{"email": a.Email}
+	update := bson.M{"$set": bson.M{"isLogin": false}}
+
+	result, err := col.UpdateOne(a.ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	if result.MatchedCount == 0 {
+		return NewUserLogoutError(a.Email)
+	}
+	return nil
 }

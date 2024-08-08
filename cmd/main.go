@@ -42,6 +42,8 @@ func _mongo() {
 	a.SetEmail(adminEmail)
 	a.SetName(adminName)
 	a.SetVerified(true)
+	a.SetIsAdmin(true)
+	a.SetActive(true)
 	a.SetPassword(string(hashedPassword))
 
 	if err := a.SignUp(); err != nil {
