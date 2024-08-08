@@ -11,6 +11,8 @@ Infomation
 실행
 ---------
 ```sh
+# Common
+docker-compose -f docker-compose-init.yml -p mongo up -d
 # DEV
 docker-compose -f docker-compose-dev.yml -p backend up -d
 # PROD
@@ -20,6 +22,8 @@ docker-compose -f docker-compose-prod.yml -p backend up -d
 정지
 ---------
 ```sh
+# Common
+docker-compose -f docker-compose-init.yml -p mongo down
 # DEV
 docker-compose -f docker-compose-dev.yml -p backend down --rmi all
 # PROD

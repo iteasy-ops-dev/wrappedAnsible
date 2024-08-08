@@ -12,3 +12,5 @@ server.*
 data
 
 sample
+
+*.txt

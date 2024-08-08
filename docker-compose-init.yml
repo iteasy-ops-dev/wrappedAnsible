@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    ports:
+      - 27018:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/db_password
+    volumes:
+      - ./data:/data/db
+    networks:
+      - iteasyopsnetwork
+    secrets:
+       - db_password
+      
+networks:
+  iteasyopsnetwork:
+    external: true
+
+secrets:
+   db_password:
+     file: db_password.txt
