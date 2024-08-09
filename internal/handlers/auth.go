@@ -1,67 +1,30 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 
-	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/model"
 	"iteasy.wrappedAnsible/pkg/utils"
 )
 
-type UserReq struct {
+type userReq struct {
 	Password string `json:"password"`
 	Email    string `json:"email"`
 	Name     string `json:"name"`
 }
 
-type ResetPasswordReq struct {
+type resetPasswordReq struct {
 	Email string `json:"email"`
 }
-type LogoutReq struct {
+type logoutReq struct {
 	Email string `json:"email"`
 }
 
-// mail 메일 인증
-func sendVerificationEmail(to, token string) error {
-	subject := "Email Verification"
-	verificationLink := fmt.Sprintf("%s/verify?token=%s", config.GlobalConfig.Default.Host, token)
-	mailBody := fmt.Sprintf(`
-		<!DOCTYPE html>
-		<html>
-		<body>
-			<p>Please verify your email using the following link:</p>
-			<p><a href="%s">Verify Email</a></p>
-		</body>
-		</html>`, verificationLink)
-
-	if err := utils.SendEmail(to, subject, mailBody); err != nil {
-		return err
-	}
-	return nil
-}
-
-func sendResetPasswordEmail(to, tempPassword string) error {
-	subject := "Password Reset"
-	mailBody := fmt.Sprintf(`
-		<!DOCTYPE html>
-		<html>
-		<body>
-			<p>Your temporary password is: <b>%s</b></p>
-		</body>
-		</html>`, tempPassword)
-
-	if err := utils.SendEmail(to, subject, mailBody); err != nil {
-		return err
-	}
-	return nil
-}
-
-func SignUp(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func signUp(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	b, err := utils.ParseRequestBody[UserReq](r)
+	b, err := utils.ParseRequestBody[userReq](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -97,7 +60,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// mail 메일 인증
-	if err := sendVerificationEmail(b.Email, verificationToken); err != nil {
+	if err := _sendVerificationEmail(b.Email, verificationToken); err != nil {
 		http.Error(w, "Failed to send verification email", http.StatusInternalServerError)
 		return
 	}
@@ -106,8 +69,8 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 }
 
 // mail 메일 인증
-func VerifyEmail(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodGet); err != nil {
+func verifyEmail(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodGet); err != nil {
 		return
 	}
 	token := r.URL.Query().Get("token")
@@ -128,11 +91,11 @@ func VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Email verified successfully"))
 }
 
-func Login(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func login(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	b, err := utils.ParseRequestBody[UserReq](r)
+	b, err := utils.ParseRequestBody[userReq](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -172,14 +135,14 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	IssueJWT(w, r, l)
+	_issueJWT(w, l)
 }
 
-func Logout(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func logout(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	b, err := utils.ParseRequestBody[LogoutReq](r)
+	b, err := utils.ParseRequestBody[logoutReq](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -202,11 +165,11 @@ func Logout(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func ResetPassword(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func resetPassword(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	b, err := utils.ParseRequestBody[ResetPasswordReq](r)
+	b, err := utils.ParseRequestBody[resetPasswordReq](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -232,7 +195,7 @@ func ResetPassword(w http.ResponseWriter, r *http.Request) {
 	a.SetPassword(string(hashedPassword))
 
 	// Send temporary password to user's email
-	err = sendResetPasswordEmail(b.Email, tempPassword)
+	err = _sendResetPasswordEmail(b.Email, tempPassword)
 	if err != nil {
 		http.Error(w, "Error sending email", http.StatusInternalServerError)
 		return

@@ -6,21 +6,21 @@ import (
 
 // RegisterHandlers registers all the route handlers
 func RegisterHandlers(mux *http.ServeMux) {
-	mux.HandleFunc("/health", Health)
-	mux.HandleFunc("/signup", SignUp)
-	mux.HandleFunc("/verify", VerifyEmail)
-	mux.HandleFunc("/login", Login)
-	mux.HandleFunc("/logout", Logout)
-	mux.HandleFunc("/reset_password", ResetPassword)
+	mux.HandleFunc("/health", health)
+	mux.HandleFunc("/signup", signUp)
+	mux.HandleFunc("/verify", verifyEmail)
+	mux.HandleFunc("/login", login)
+	mux.HandleFunc("/logout", logout)
+	mux.HandleFunc("/reset_password", resetPassword)
 
 	// with JWT
-	mux.HandleFunc("/extend_extension", ExtendJWT)
-	mux.HandleFunc("/functions", Functions)
-	mux.HandleFunc("/erp-parser", ErpParser)
-	mux.HandleFunc("/dashboad", Dashboard)
-	mux.HandleFunc("/run", ExcuteAnsible)
-	mux.HandleFunc("/logs", Logs)
-	mux.HandleFunc("/users", Users)
-	mux.HandleFunc("/update_active", UpdateUserActive)
-	mux.HandleFunc("/update_password", UpdateUserPassword)
+	mux.HandleFunc("/extend_extension", extendJWT)
+	mux.HandleFunc("/functions", functions)
+	mux.HandleFunc("/erp-parser", erpParser)
+	mux.HandleFunc("/dashboad", dashboard)
+	mux.HandleFunc("/run", excuteAnsible)
+	mux.HandleFunc("/logs", logs)
+	mux.HandleFunc("/users", users)
+	mux.HandleFunc("/update_active", updateUserActive)
+	mux.HandleFunc("/update_password", updateUserPassword)
 }

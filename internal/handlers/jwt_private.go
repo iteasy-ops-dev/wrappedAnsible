@@ -23,7 +23,7 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-func IssueJWT(w http.ResponseWriter, r *http.Request, s *model.Auth) {
+func _issueJWT(w http.ResponseWriter, s *model.Auth) {
 	expirationTime := time.Now().Add(JWT_EXPIRE_TIME)
 	claims := &Claims{
 		Name:  s.Name,
@@ -52,8 +52,8 @@ func IssueJWT(w http.ResponseWriter, r *http.Request, s *model.Auth) {
 }
 
 // ExtendJWT handles the extension of the existing JWT token
-func ExtendJWT(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func extendJWT(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
 

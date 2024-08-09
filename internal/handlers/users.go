@@ -9,21 +9,21 @@ import (
 	"iteasy.wrappedAnsible/pkg/utils"
 )
 
-type UpdateActiveReq struct {
+type updateActiveReq struct {
 	Email    string `json:"Email"`
 	IsActive bool   `json:"IsActive"`
 }
 
-type UpdatePasswordReq struct {
+type updatePasswordReq struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
-func Users(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodGet); err != nil {
+func users(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodGet); err != nil {
 		return
 	}
-	if err := ValidateToken(w, r); err != nil {
+	if err := _validateToken(w, r); err != nil {
 		return
 	}
 
@@ -45,10 +45,10 @@ func Users(w http.ResponseWriter, r *http.Request) {
 
 // TODO: profile 에 이름을 비롯한 추가적인 정보에 대해서 업데이트 필요
 // func Profile(w http.ResponseWriter, r *http.Request) {
-// 	if err := AllowMethod(w, r, http.MethodGet); err != nil {
+// 	if err := _allowMethod(w, r, http.MethodGet); err != nil {
 // 		return
 // 	}
-// 	if err := ValidateToken(w, r); err != nil {
+// 	if err := _validateToken(w, r); err != nil {
 // 		return
 // 	}
 
@@ -72,14 +72,14 @@ func Users(w http.ResponseWriter, r *http.Request) {
 
 // }
 
-func UpdateUserActive(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func updateUserActive(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	if err := ValidateToken(w, r); err != nil {
+	if err := _validateToken(w, r); err != nil {
 		return
 	}
-	b, err := utils.ParseRequestBody[UpdateActiveReq](r)
+	b, err := utils.ParseRequestBody[updateActiveReq](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -98,14 +98,14 @@ func UpdateUserActive(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func UpdateUserPassword(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func updateUserPassword(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	if err := ValidateToken(w, r); err != nil {
+	if err := _validateToken(w, r); err != nil {
 		return
 	}
-	b, err := utils.ParseRequestBody[UpdatePasswordReq](r)
+	b, err := utils.ParseRequestBody[updatePasswordReq](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

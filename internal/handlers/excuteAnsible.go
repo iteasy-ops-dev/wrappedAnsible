@@ -11,11 +11,11 @@ import (
 	"iteasy.wrappedAnsible/internal/model"
 )
 
-func ExcuteAnsible(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func excuteAnsible(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	if err := ValidateToken(w, r); err != nil {
+	if err := _validateToken(w, r); err != nil {
 		return
 	}
 

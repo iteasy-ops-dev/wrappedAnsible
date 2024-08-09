@@ -176,7 +176,6 @@ func HashingPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-// TODO: 테스트 필요
 func ParseRequestBody[T any](r *http.Request) (T, error) {
 	var body T
 	data, err := io.ReadAll(r.Body)

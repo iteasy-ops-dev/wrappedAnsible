@@ -8,7 +8,16 @@ import (
 	config "iteasy.wrappedAnsible/configs"
 )
 
-func ValidateToken(w http.ResponseWriter, r *http.Request) error {
+func _allowMethod(w http.ResponseWriter, r *http.Request, method string) error {
+	if r.Method != method {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return fmt.Errorf("invalid request method")
+	}
+
+	return nil
+}
+
+func _validateToken(w http.ResponseWriter, r *http.Request) error {
 	// 클라이언트로부터 쿠키에서 토큰을 가져옵니다.
 	c, err := r.Cookie(config.GlobalConfig.JWT.TokenName)
 	if err != nil {

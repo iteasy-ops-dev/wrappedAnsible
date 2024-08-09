@@ -8,11 +8,11 @@ import (
 	"iteasy.wrappedAnsible/internal/model"
 )
 
-func Logs(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodGet); err != nil {
+func logs(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodGet); err != nil {
 		return
 	}
-	if err := ValidateToken(w, r); err != nil {
+	if err := _validateToken(w, r); err != nil {
 		return
 	}
 	n := model.NewAnsibleProcessStatusDocument(r)

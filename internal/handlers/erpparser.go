@@ -8,25 +8,25 @@ import (
 	"iteasy.wrappedAnsible/pkg/utils"
 )
 
-type ErpParserReq struct {
+type erpParserReq struct {
 	URL string `json:"url"` // JSON의 "url" 필드를 매핑
 }
 
-func ErpParser(w http.ResponseWriter, r *http.Request) {
-	if err := AllowMethod(w, r, http.MethodPost); err != nil {
+func erpParser(w http.ResponseWriter, r *http.Request) {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	if err := ValidateToken(w, r); err != nil {
+	if err := _validateToken(w, r); err != nil {
 		return
 	}
-	data, err := utils.ParseRequestBody[ErpParserReq](r)
+	data, err := utils.ParseRequestBody[erpParserReq](r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// JSON 데이터 파싱
-	// var data ErpParserReq
+	// var data erpParserReq
 	// if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 	// 	http.Error(w, "Error decoding JSON", http.StatusBadRequest)
 	// 	return
