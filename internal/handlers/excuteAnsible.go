@@ -52,8 +52,7 @@ func excuteAnsible(w http.ResponseWriter, r *http.Request) {
 			return fmt.Errorf("failed to execute Ansible: %w", err)
 		}
 		m := model.NewAnsibleProcessStatusDocument(payload)
-		err = m.Put()
-		if err != nil {
+		if err := m.Put(); err != nil {
 			return err
 		}
 		return err
