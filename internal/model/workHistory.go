@@ -171,43 +171,6 @@ func (w *WorkHistory) Put() error {
 	return err
 }
 
-// func (w *WorkHistory) Get(filter bson.M, page int, pageSize int) ([]WorkHistory, int, error) {
-// 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.WorkHistory)
-
-// 	// 페이지 번호와 페이지 크기 검증
-// 	if page < 1 {
-// 		page = 1
-// 	}
-// 	if pageSize < 1 {
-// 		pageSize = 10 // 기본값 설정
-// 	}
-
-// 	// Skip 및 Limit 설정
-// 	skip := (page - 1) * pageSize
-
-// 	// 데이터 조회
-// 	cursor, err := col.Find(context.Background(), filter, options.Find().SetSkip(int64(skip)).SetLimit(int64(pageSize)))
-// 	if err != nil {
-// 		return nil, 0, err
-// 	}
-
-// 	// 커서를 디코딩하여 결과 반환
-// 	results, err := DecodeCursor[WorkHistory](cursor)
-// 	if err != nil {
-// 		return nil, 0, err
-// 	}
-
-// 	// 전체 데이터 수 조회
-// 	totalCount, err := col.CountDocuments(context.Background(), filter)
-// 	if err != nil {
-// 		return nil, 0, err
-// 	}
-
-// 	totalPages := int((totalCount + int64(pageSize) - 1) / int64(pageSize)) // 총 페이지 수 계산
-
-// 	return results, totalPages, nil
-// }
-
 func (w *WorkHistory) Get(filter bson.M, page int, pageSize int) ([]WorkHistory, int, error) {
 	col := db.Collection(config.GlobalConfig.MongoDB.Collections.WorkHistory)
 

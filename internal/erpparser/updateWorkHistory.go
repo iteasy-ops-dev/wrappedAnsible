@@ -1,9 +1,7 @@
 package erpparser
 
 import (
-	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -14,6 +12,7 @@ import (
 
 	config "iteasy.wrappedAnsible/configs"
 	"iteasy.wrappedAnsible/internal/model"
+	"iteasy.wrappedAnsible/pkg/utils"
 )
 
 // 날짜를 하루씩 증가시키는 함수
@@ -160,7 +159,7 @@ func ProcessDate(date string) error {
 		Msg  string `json:"msg"`
 	}
 
-	if err := parseJSONBody(resp.Body, &result); err != nil {
+	if err := utils.ParseJSONBody(resp.Body, &result); err != nil {
 		return fmt.Errorf("JSON 파싱 오류: %v", err)
 	}
 
@@ -253,18 +252,5 @@ func ProcessDate(date string) error {
 		m.Put()
 	})
 
-	return nil
-}
-
-// parseJSONBody 함수: 응답 본문을 JSON으로 파싱
-func parseJSONBody(body io.Reader, v interface{}) error {
-	data, err := io.ReadAll(body)
-	if err != nil {
-		return fmt.Errorf("failed to read response body: %v", err)
-	}
-
-	if err := json.Unmarshal(data, v); err != nil {
-		return fmt.Errorf("failed to unmarshal JSON: %v", err)
-	}
 	return nil
 }

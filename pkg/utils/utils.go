@@ -189,3 +189,15 @@ func ParseRequestBody[T any](r *http.Request) (T, error) {
 	}
 	return body, nil
 }
+
+func ParseJSONBody(body io.Reader, v interface{}) error {
+	data, err := io.ReadAll(body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %v", err)
+	}
+
+	if err := json.Unmarshal(data, v); err != nil {
+		return fmt.Errorf("failed to unmarshal JSON: %v", err)
+	}
+	return nil
+}
