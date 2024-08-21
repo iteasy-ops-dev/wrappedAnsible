@@ -24,7 +24,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/update_password", updateUserPassword)
 
 	mux.HandleFunc("/erp-parser", erpParser)
-	mux.HandleFunc("/update-work-history", UpdateWorkHistory)
-	mux.HandleFunc("/get-work-history", GetWorkHistory)
-	mux.HandleFunc("/insight", Insight)
+	mux.HandleFunc("/update-work-history", updateWorkHistory)
+	mux.HandleFunc("/get-work-history", getWorkHistory)
+	mux.HandleFunc("/insight", insight)
 }

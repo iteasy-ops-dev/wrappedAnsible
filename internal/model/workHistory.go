@@ -99,27 +99,28 @@ func (w *WorkHistory) isValid() bool {
 	valid := w.isIndexValid() &&
 		strings.TrimSpace(w.Status) != "" &&
 		strings.TrimSpace(w.RegistrationDate) != "" &&
-		strings.TrimSpace(w.EstimatedCompletionTime) != "" &&
+		// strings.TrimSpace(w.EstimatedCompletionTime) != "" &&
 		strings.TrimSpace(w.WorkRequestItems) != "" &&
-		strings.TrimSpace(w.SubCategory) != "" &&
+		// strings.TrimSpace(w.SubCategory) != "" &&
 		strings.TrimSpace(w.ClientCompany) != "" &&
 		strings.TrimSpace(w.Brand) != "" &&
 		strings.TrimSpace(w.Section) != "" &&
 		strings.TrimSpace(w.Url) != ""
 
-	// if !valid {
-	// 	w.PrintValidations() // 유효성 검사 실패 시 필드 값 출력
-	// }
+	if !valid {
+		w.PrintValidations() // 유효성 검사 실패 시 필드 값 출력
+	}
 	return valid
 }
 
 func (w *WorkHistory) PrintValidations() {
+	fmt.Println("==================  PrintValidations  =========================")
 	fmt.Printf("Index: '%s' Valid: %v\n", w.Index, w.isIndexValid())
 	fmt.Printf("Status: '%s' Valid: %v\n", w.Status, strings.TrimSpace(w.Status) != "")
 	fmt.Printf("RegistrationDate: '%s' Valid: %v\n", w.RegistrationDate, strings.TrimSpace(w.RegistrationDate) != "")
-	fmt.Printf("EstimatedCompletionTime: '%s' Valid: %v\n", w.EstimatedCompletionTime, strings.TrimSpace(w.EstimatedCompletionTime) != "")
+	// fmt.Printf("EstimatedCompletionTime: '%s' Valid: %v\n", w.EstimatedCompletionTime, strings.TrimSpace(w.EstimatedCompletionTime) != "")
 	fmt.Printf("WorkRequestItems: '%s' Valid: %v\n", w.WorkRequestItems, strings.TrimSpace(w.WorkRequestItems) != "")
-	fmt.Printf("SubCategory: '%s' Valid: %v\n", w.SubCategory, strings.TrimSpace(w.SubCategory) != "")
+	// fmt.Printf("SubCategory: '%s' Valid: %v\n", w.SubCategory, strings.TrimSpace(w.SubCategory) != "")
 	fmt.Printf("ClientCompany: '%s' Valid: %v\n", w.ClientCompany, strings.TrimSpace(w.ClientCompany) != "")
 	fmt.Printf("Brand: '%s' Valid: %v\n", w.Brand, strings.TrimSpace(w.Brand) != "")
 	fmt.Printf("Section: '%s' Valid: %v\n", w.Section, strings.TrimSpace(w.Section) != "")
@@ -135,7 +136,7 @@ func (w *WorkHistory) Put() error {
 
 	// 필드 일치 여부를 확인하기 위한 필터를 작성
 	filter := bson.M{
-		"index":                     w.Index,
+		// "index":                     w.Index, // 인덱스가 변할 수도 있었음.
 		"registration_date":         w.RegistrationDate,
 		"client_company":            w.ClientCompany,
 		"sub_category":              w.SubCategory,
@@ -150,6 +151,7 @@ func (w *WorkHistory) Put() error {
 		// 일부 데이터만 일치하면 상태를 업데이트
 		update := bson.M{
 			"$set": bson.M{
+				"index":   w.Index,
 				"status":  w.Status,
 				"worker":  w.Worker,
 				"ip":      w.IP,

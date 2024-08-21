@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	config "iteasy.wrappedAnsible/configs"
@@ -16,7 +15,7 @@ func functions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := make([]string, 0)
+	result := make([]string, 0)
 	l := utils.GetFileList(config.GlobalConfig.Ansible.PathStaticPlaybook)
 	// l := utils.GetFileList(config.PATH_STATIC_PLAYBOOK)
 	for _, name := range l {
@@ -25,13 +24,15 @@ func functions(w http.ResponseWriter, r *http.Request) {
 			if name == "requirements.yml" || name == "init.yml" {
 				continue
 			}
-			res = append(res, utils.TruncationExtension(name))
+			result = append(result, utils.TruncationExtension(name))
 		}
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	// w.Header().Set("Content-Type", "application/json")
+	// w.WriteHeader(http.StatusOK)
+	// if err := json.NewEncoder(w).Encode(res); err != nil {
+	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
+	// }
+
+	_httpResponse(w, http.StatusOK, result)
 }

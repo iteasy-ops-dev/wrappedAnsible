@@ -66,6 +66,7 @@ func ProcessDate(date string) error {
 		return err
 	}
 
+	// TODO: 작업 준비중이 체크 안되어 있는 상태. 넣을 것인가?
 	payload := url.Values{
 		"0[name]":    {"hopeCal1"},
 		"0[value]":   {"0000-00-00"},

@@ -65,7 +65,8 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	// w.WriteHeader(http.StatusCreated)
+	_httpResponse(w, http.StatusCreated, nil)
 }
 
 // mail 메일 인증
@@ -162,7 +163,8 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
+	_httpResponse(w, http.StatusOK, nil)
 }
 
 func resetPassword(w http.ResponseWriter, r *http.Request) {
@@ -213,5 +215,6 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.WriteHeader(http.StatusOK)
+	// w.WriteHeader(http.StatusOK)
+	_httpResponse(w, http.StatusOK, nil)
 }

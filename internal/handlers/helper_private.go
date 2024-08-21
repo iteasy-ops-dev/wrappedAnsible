@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -59,4 +60,20 @@ func _validateToken(w http.ResponseWriter, r *http.Request) error {
 
 	// 클레임을 반환합니다.
 	return nil
+}
+
+func _httpResponse(w http.ResponseWriter, statusCode int, data interface{}) {
+	// Set the content type to application/json
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	// If data is nil, just return with the status code
+	if data == nil {
+		return
+	}
+
+	// Otherwise, encode the data as JSON and write it to the response
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	}
 }

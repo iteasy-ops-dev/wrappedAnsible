@@ -8,7 +8,7 @@ import (
 	"iteasy.wrappedAnsible/internal/model"
 )
 
-func GetWorkHistory(w http.ResponseWriter, r *http.Request) {
+func getWorkHistory(w http.ResponseWriter, r *http.Request) {
 	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
@@ -53,8 +53,10 @@ func GetWorkHistory(w http.ResponseWriter, r *http.Request) {
 		TotalPages: totalPages,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-	}
+	// w.Header().Set("Content-Type", "application/json")
+	// w.WriteHeader(http.StatusOK)
+	// if err := json.NewEncoder(w).Encode(response); err != nil {
+	// 	http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+	// }
+	_httpResponse(w, http.StatusOK, response)
 }

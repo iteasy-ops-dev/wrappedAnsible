@@ -63,10 +63,13 @@ func excuteAnsible(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(payload.ToBytes()); err != nil {
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
-		return
-	}
+	// w.Header().Set("Content-Type", "application/json")
+	// w.WriteHeader(http.StatusOK)
+	// if _, err := w.Write(payload.ToBytes()); err != nil {
+	// 	http.Error(w, "Failed to write response", http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// TODO: 여기에도 적용되는지 확인
+	_httpResponse(w, http.StatusOK, payload)
 }

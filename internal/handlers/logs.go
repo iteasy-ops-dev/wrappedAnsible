@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -23,10 +22,12 @@ func logs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(result); err != nil {
-		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-		return
-	}
+	// w.Header().Set("Content-Type", "application/json")
+	// w.WriteHeader(http.StatusOK)
+	// if err := json.NewEncoder(w).Encode(result); err != nil {
+	// 	http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
+	// 	return
+	// }
+
+	_httpResponse(w, http.StatusOK, result)
 }

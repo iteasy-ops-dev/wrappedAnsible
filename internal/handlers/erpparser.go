@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"iteasy.wrappedAnsible/internal/erpparser"
@@ -41,15 +40,18 @@ func erpParser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 추출된 URL 사용 (예: 로그에 기록)
-	log.Printf("Received URL: %s", url)
+	// log.Printf("Received URL: %s", url)
 
 	e := erpparser.New(url)
 	e.Parsing()
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if _, err := w.Write(e.ToBytes()); err != nil {
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
-		return
-	}
+	// w.Header().Set("Content-Type", "application/json")
+	// w.WriteHeader(http.StatusOK)
+	// if _, err := w.Write(e.ToBytes()); err != nil {
+	// 	http.Error(w, "Failed to write response", http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// TODO: 여기에도 적용되는지 확인
+	_httpResponse(w, http.StatusOK, e)
 }
