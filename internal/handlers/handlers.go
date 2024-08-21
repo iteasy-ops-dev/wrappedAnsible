@@ -16,11 +16,15 @@ func RegisterHandlers(mux *http.ServeMux) {
 	// with JWT
 	mux.HandleFunc("/extend_extension", extendJWT)
 	mux.HandleFunc("/functions", functions)
-	mux.HandleFunc("/erp-parser", erpParser)
 	mux.HandleFunc("/dashboad", dashboard)
 	mux.HandleFunc("/run", excuteAnsible)
 	mux.HandleFunc("/logs", logs)
 	mux.HandleFunc("/users", users)
 	mux.HandleFunc("/update_active", updateUserActive)
 	mux.HandleFunc("/update_password", updateUserPassword)
+
+	mux.HandleFunc("/erp-parser", erpParser)
+	mux.HandleFunc("/update-work-history", UpdateWorkHistory)
+	mux.HandleFunc("/get-work-history", GetWorkHistory)
+	mux.HandleFunc("/insight", Insight)
 }

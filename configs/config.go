@@ -54,11 +54,13 @@ type MongoDBConfig struct {
 type MongoDBCollections struct {
 	AnsibleProcessStatus string `json:"ansible_process_status"`
 	Auth                 string `json:"auth"`
+	WorkHistory          string `json:"work_history"`
 }
 
 type ErpConfig struct {
-	BaseURL string         `json:"base_url"`
-	Login   ErpLoginConfig `json:"login"`
+	BaseURL     string               `json:"base_url"`
+	Login       ErpLoginConfig       `json:"login"`
+	WorkHistory ErpWorkHistoryConfig `json:"work_history"`
 }
 
 type ErpLoginConfig struct {
@@ -67,6 +69,9 @@ type ErpLoginConfig struct {
 	AdminPasswd string `json:"admin_passwd"`
 	AllowType   string `json:"allow_type"`
 	LoginBtn    string `json:"login_btn"`
+}
+type ErpWorkHistoryConfig struct {
+	Url string `json:"url"`
 }
 
 type SmtpConfig struct {
