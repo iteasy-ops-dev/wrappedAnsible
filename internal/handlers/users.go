@@ -34,12 +34,6 @@ func users(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-	// if err := json.NewEncoder(w).Encode(result); err != nil {
-	// 	http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-	// 	return
-	// }
 	_httpResponse(w, http.StatusOK, result)
 }
 
@@ -94,9 +88,6 @@ func updateUserActive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-
 	_httpResponse(w, http.StatusOK, nil)
 }
 
@@ -138,6 +129,5 @@ func updateUserPassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// w.WriteHeader(http.StatusOK)
 	_httpResponse(w, http.StatusOK, nil)
 }

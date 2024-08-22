@@ -65,7 +65,6 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// w.WriteHeader(http.StatusCreated)
 	_httpResponse(w, http.StatusCreated, nil)
 }
 
@@ -163,7 +162,6 @@ func logout(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// w.WriteHeader(http.StatusOK)
 	_httpResponse(w, http.StatusOK, nil)
 }
 
@@ -186,7 +184,6 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 
 	// Hash the temporary password
 	hashedPassword, err := utils.HashingPassword(tempPassword)
-	// hashedPassword, err := bcrypt.GenerateFromPassword([]byte(tempPassword), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(w, "Error hashing password", http.StatusInternalServerError)
 		return
@@ -215,6 +212,5 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// w.WriteHeader(http.StatusOK)
 	_httpResponse(w, http.StatusOK, nil)
 }

@@ -34,11 +34,5 @@ func insight(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-	// if err := json.NewEncoder(w).Encode(results); err != nil {
-	// 	http.Error(w, "Failed to encode response", http.StatusInternalServerError)
-	// }
-
 	_httpResponse(w, http.StatusOK, results)
 }

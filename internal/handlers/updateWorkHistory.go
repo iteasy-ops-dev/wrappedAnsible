@@ -77,9 +77,6 @@ func updateWorkHistory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 즉시 응답을 반환
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusOK)
-
 	_httpResponse(w, http.StatusOK, nil)
 
 	// 백그라운드에서 고루틴 실행
