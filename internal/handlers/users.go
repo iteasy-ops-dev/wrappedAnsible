@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"iteasy.wrappedAnsible/internal/model"
 	"iteasy.wrappedAnsible/pkg/utils"
 )
@@ -19,22 +21,57 @@ type updatePasswordReq struct {
 }
 
 func users(w http.ResponseWriter, r *http.Request) {
-	if err := _allowMethod(w, r, http.MethodGet); err != nil {
+	if err := _allowMethod(w, r, http.MethodPost); err != nil {
 		return
 	}
-	if err := _validateToken(w, r); err != nil {
+	// if err := _validateToken(w, r); err != nil {
+	// 	return
+	// }
+
+	type req struct {
+		Filter   bson.M `json:"filter"`   // JSON의 "filter" 필드를 매핑
+		Page     int    `json:"page"`     // 페이지 번호
+		PageSize int    `json:"pageSize"` // 페이지 당 항목 수
+	}
+
+	var data req
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	// 페이지 번호와 페이지 크기 검증
+	if data.Page < 1 {
+		data.Page = 1
+	}
+	if data.PageSize < 1 {
+		data.PageSize = 10 // 기본값 설정
 	}
 
 	a := model.NewAuth(r.Context())
-	result, err := a.Get()
-
+	// result, err := a.Get()
+	results, totalPages, err := a.Get(data.Filter, data.Page, data.PageSize)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("failed to Query with DB: %v", err), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	_httpResponse(w, http.StatusOK, result)
+	// if err != nil {
+	// 	http.Error(w, fmt.Sprintf("failed to Query with DB: %v", err), http.StatusInternalServerError)
+	// 	return
+	// }
+
+	// _httpResponse(w, http.StatusOK, result)
+
+	response := struct {
+		Data       []model.AuthReq `json:"data"`
+		TotalPages int             `json:"totalPages"`
+	}{
+		Data:       results,
+		TotalPages: totalPages,
+	}
+
+	_httpResponse(w, http.StatusOK, response)
 }
 
 // TODO: profile 에 이름을 비롯한 추가적인 정보에 대해서 업데이트 필요

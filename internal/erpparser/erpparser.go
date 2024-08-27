@@ -190,6 +190,57 @@ func (e *ErpParser) ToBytes() []byte {
 // 	return info, nil
 // }
 
+// func extractInfo(text string) (Info, error) {
+// 	info := Info{}
+
+// 	// 정규 표현식 패턴 정의
+// 	patterns := map[string]*regexp.Regexp{
+// 		"user_id":      regexp.MustCompile(`FTP 계정정보\s*ID\s*:\s*(\S+)`),
+// 		"user_pass":    regexp.MustCompile(`PW\s*:\s*(\S+)`),
+// 		"disk_quota":   regexp.MustCompile(`디스크할당량\s*:\s*(\d+)`),
+// 		"cband_limit":  regexp.MustCompile(`1일 트래픽 할당량\s*:\s*(\d+)`),
+// 		"vhost_domain": regexp.MustCompile(`연결도메인\s*:\s*(\S+)`),
+// 		"db_user":      regexp.MustCompile(`DB 계정정보\s*ID\s*:\s*(\S+)`),
+// 		"db_name":      regexp.MustCompile(`DBNAME\s*:\s*(\S+)`),
+// 		// "db_password" 패턴 제거: 두 개의 PW 값을 찾기 위해 특수 처리를 합니다.
+// 	}
+
+// 	// 먼저 일반 패턴들을 처리합니다.
+// 	for key, re := range patterns {
+// 		match := re.FindStringSubmatch(text)
+// 		if len(match) > 1 {
+// 			switch key {
+// 			case "user_id":
+// 				info.UserID = match[1]
+// 			case "user_pass":
+// 				info.UserPass = match[1]
+// 			case "disk_quota":
+// 				info.DiskQuota = match[1]
+// 			case "cband_limit":
+// 				info.CbandLimit = match[1]
+// 			case "vhost_domain":
+// 				info.VhostDomain = match[1]
+// 			case "db_user":
+// 				info.DBUser = match[1]
+// 			case "db_name":
+// 				info.DBName = match[1]
+// 			}
+// 		}
+// 	}
+
+// 	// "PW" 패턴은 FindAllStringSubmatch로 처리합니다.
+// 	passMatches := regexp.MustCompile(`PW\s*:\s*(\S+)`).FindAllStringSubmatch(text, -1)
+// 	if len(passMatches) >= 2 {
+// 		info.UserPass = passMatches[0][1]   // 첫 번째 PW 값
+// 		info.DBPassword = passMatches[1][1] // 두 번째 PW 값
+// 		// fmt.Println("UserPass:", info.UserPass)
+// 		// fmt.Println("DBPassword:", info.DBPassword)
+// 	}
+
+// 	return info, nil
+// }
+
+// 앞뒤 공백 제거
 func extractInfo(text string) (Info, error) {
 	info := Info{}
 
@@ -202,28 +253,28 @@ func extractInfo(text string) (Info, error) {
 		"vhost_domain": regexp.MustCompile(`연결도메인\s*:\s*(\S+)`),
 		"db_user":      regexp.MustCompile(`DB 계정정보\s*ID\s*:\s*(\S+)`),
 		"db_name":      regexp.MustCompile(`DBNAME\s*:\s*(\S+)`),
-		// "db_password" 패턴 제거: 두 개의 PW 값을 찾기 위해 특수 처리를 합니다.
 	}
 
 	// 먼저 일반 패턴들을 처리합니다.
 	for key, re := range patterns {
 		match := re.FindStringSubmatch(text)
 		if len(match) > 1 {
+			trimmedValue := strings.TrimSpace(match[1])
 			switch key {
 			case "user_id":
-				info.UserID = match[1]
+				info.UserID = trimmedValue
 			case "user_pass":
-				info.UserPass = match[1]
+				info.UserPass = trimmedValue
 			case "disk_quota":
-				info.DiskQuota = match[1]
+				info.DiskQuota = trimmedValue
 			case "cband_limit":
-				info.CbandLimit = match[1]
+				info.CbandLimit = trimmedValue
 			case "vhost_domain":
-				info.VhostDomain = match[1]
+				info.VhostDomain = trimmedValue
 			case "db_user":
-				info.DBUser = match[1]
+				info.DBUser = trimmedValue
 			case "db_name":
-				info.DBName = match[1]
+				info.DBName = trimmedValue
 			}
 		}
 	}
@@ -231,10 +282,8 @@ func extractInfo(text string) (Info, error) {
 	// "PW" 패턴은 FindAllStringSubmatch로 처리합니다.
 	passMatches := regexp.MustCompile(`PW\s*:\s*(\S+)`).FindAllStringSubmatch(text, -1)
 	if len(passMatches) >= 2 {
-		info.UserPass = passMatches[0][1]   // 첫 번째 PW 값
-		info.DBPassword = passMatches[1][1] // 두 번째 PW 값
-		// fmt.Println("UserPass:", info.UserPass)
-		// fmt.Println("DBPassword:", info.DBPassword)
+		info.UserPass = strings.TrimSpace(passMatches[0][1])   // 첫 번째 PW 값
+		info.DBPassword = strings.TrimSpace(passMatches[1][1]) // 두 번째 PW 값
 	}
 
 	return info, nil

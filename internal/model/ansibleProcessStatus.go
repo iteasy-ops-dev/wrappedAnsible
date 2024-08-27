@@ -52,67 +52,53 @@ func (a *AnsibleProcessStatusDocument) Put() error {
 	return nil
 }
 
-func (a *AnsibleProcessStatusDocument) Get() ([]AnsibleProcessStatusDocument, error) {
+func (a *AnsibleProcessStatusDocument) Get(filter bson.M, page int, pageSize int) ([]AnsibleProcessStatusDocument, int, error) {
 	col := a._collection()
 
-	var orderKey string = "timestamp"
-
-	filter := bson.M{}
-	if len(a.IPs) > 0 {
-		if a.isOr {
-			filter["ips"] = bson.M{"$in": a.IPs}
-		} else {
-			filter["ips"] = bson.M{"$all": a.IPs}
-		}
+	// 페이지 번호와 페이지 크기 검증
+	if page < 1 {
+		page = 1
 	}
-	if a.Type != "" {
-		filter["type"] = a.Type
-	}
-	if a.Name != "" {
-		filter["name"] = a.Name
-	}
-	if a.Email != "" {
-		filter["email"] = a.Email
-	}
-	if a.Account != "" {
-		filter["account"] = a.Account
+	if pageSize < 1 {
+		pageSize = 10 // 기본값 설정
 	}
 
-	if a.Status {
-		filter["$or"] = []bson.M{
-			{"status": true},
-			{"status": bson.M{"$exists": false}},
-		}
-	} else {
-		filter["$or"] = []bson.M{
-			{"status": false},
-			{"status": bson.M{"$exists": false}},
-		}
+	// Skip 및 Limit 설정
+	skip := (page - 1) * pageSize
+
+	// 정렬 옵션 추가
+	sortOptions := bson.D{
+		{Key: "timestamp", Value: -1}, // timestamp 내림차순
 	}
 
-	if a.Duration > 0 {
-		filter["duration"] = bson.M{a.comparison: a.Duration}
-	}
-
-	sort := bson.M{orderKey: 1}
-	if a.isDesc {
-		sort = bson.M{orderKey: -1}
-	}
-
-	opts := options.Find().SetSort(sort)
-
-	cursor, err := col.Find(a.ctx, filter, opts)
+	// 데이터 조회
+	cursor, err := col.Find(
+		context.Background(),
+		filter,
+		options.Find().
+			SetSkip(int64(skip)).
+			SetLimit(int64(pageSize)).
+			SetSort(sortOptions), // 정렬 옵션 설정
+	)
 	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(a.ctx)
-
-	var results []AnsibleProcessStatusDocument
-	if err := cursor.All(a.ctx, &results); err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return results, nil
+	// 커서를 디코딩하여 결과 반환
+	results, err := DecodeCursor[AnsibleProcessStatusDocument](cursor)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 전체 데이터 수 조회
+	totalCount, err := col.CountDocuments(context.Background(), filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	totalPages := int((totalCount + int64(pageSize) - 1) / int64(pageSize)) // 총 페이지 수 계산
+
+	return results, totalPages, nil
 }
 
 func (a *AnsibleProcessStatusDocument) Dashboard() (map[string]interface{}, error) {
