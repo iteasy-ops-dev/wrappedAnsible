@@ -87,6 +87,11 @@ func parseMultipartRequest(v GennerateHttpRequestType) (iAnsible, error) {
 			return nil, err
 		}
 
+		// Set file permissions to 644
+		if err := os.Chmod(tempFile.Name(), 0644); err != nil {
+			return nil, err
+		}
+
 		filePaths = append(filePaths, tempFile.Name())
 	}
 
