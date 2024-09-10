@@ -203,33 +203,58 @@ func ProcessDate(date string) error {
 				// fmt.Printf("작업자: %s\n", columnContent)
 			case 7:
 				// a 태그에 있는 url은 추출하고 싶다.
+				// cell.Find("a").Each(func(k int, link *goquery.Selection) {
+				// 	url, exists := link.Attr("href")
+				// 	if exists {
+				// 		// fmt.Printf("링크 URL: %s\n", url)
+				// 		m.Seturl(url)
+				// 	}
+				// })
+				// erp 링크
 				cell.Find("a").Each(func(k int, link *goquery.Selection) {
-					url, exists := link.Attr("href")
-					if exists {
-						// fmt.Printf("링크 URL: %s\n", url)
-						m.Seturl(url)
+					class, _ := link.Attr("class")
+					if class == "ln_inner" {
+						href, exists := link.Attr("href")
+						if exists {
+							m.Seturl(href)
+						}
 					}
 				})
-				if strings.Contains(columnContent, "    ") {
-					splitIndex := strings.Index(columnContent, "    ")
-					if splitIndex != -1 {
-						item := strings.TrimSpace(columnContent[:splitIndex])
-						content := strings.TrimSpace(columnContent[splitIndex+5:])
-						// fmt.Printf("작업의뢰 항목: %s\n", item)
-						// fmt.Printf("작업의뢰 내용: %s\n", content)
-						m.SetworkRequestItems(item)
-						if cell.Find("table").Length() > 0 {
-							return // 내부 테이블이 있는 td를 건너뜁니다
-						}
+
+				// <span> 태그의 클래스에 따라 내용 처리
+				cell.Find("span").Each(func(k int, span *goquery.Selection) {
+					class, _ := span.Attr("class")
+					content := strings.TrimSpace(span.Text())
+
+					switch class {
+					case "cl_mediumblue": // 작업의뢰 항목
+						m.SetworkRequestItems(content)
+					case "tooltip-text": // 세부내용
 						m.SetworkRequestDetails(content)
-					} else {
-						// fmt.Printf("작업의뢰 항목: %s\n", columnContent)
-						m.SetworkRequestItems(columnContent)
 					}
-				} else {
-					m.SetworkRequestItems(columnContent)
-					// fmt.Printf("작업의뢰 항목: %s\n", columnContent)
-				}
+				})
+
+				// if strings.Contains(columnContent, "    ") {
+				// 	splitIndex := strings.Index(columnContent, "    ")
+				// 	if splitIndex != -1 {
+				// 		item := strings.TrimSpace(columnContent[:splitIndex])
+				// 		content := strings.TrimSpace(columnContent[splitIndex+5:])
+				// 		// fmt.Printf("작업의뢰 항목: %s\n", item)
+				// 		// fmt.Printf("작업의뢰 내용: %s\n", content)
+				// 		m.SetworkRequestItems(item)
+				// 		if cell.Find("table").Length() > 0 {
+				// 			return // 내부 테이블이 있는 td를 건너뜁니다
+				// 		}
+				// 		m.SetworkRequestDetails(content)
+				// 	} else {
+				// 		// fmt.Printf("작업의뢰 항목: %s\n", columnContent)
+				// 		m.SetworkRequestItems(columnContent)
+				// 	}
+				// } else {
+				// 	m.SetworkRequestItems(columnContent)
+				// 	// fmt.Printf("작업의뢰 항목: %s\n", columnContent)
+				// }
+
 			case 8:
 				m.SetsubCategory(columnContent)
 				// fmt.Printf("소분류: %s\n", columnContent)

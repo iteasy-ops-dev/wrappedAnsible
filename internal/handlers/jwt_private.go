@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	JWT_EXPIRE_TIME = 60 * time.Minute // 1시간
+	JWT_EXPIRE_TIME = 12 * 60 * time.Minute // 12시간
 )
 
 var JWT_KEY = []byte(config.GlobalConfig.JWT.Key)
