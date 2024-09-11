@@ -137,11 +137,12 @@ func (w *WorkHistory) Put() error {
 	// 필드 일치 여부를 확인하기 위한 필터를 작성
 	filter := bson.M{
 		// "index":                     w.Index, // 인덱스가 변할 수도 있었음.
-		"registration_date":         w.RegistrationDate,
-		"client_company":            w.ClientCompany,
-		"sub_category":              w.SubCategory,
-		"work_request_items":        w.WorkRequestItems,
-		"estimated_completion_time": w.EstimatedCompletionTime,
+		// "registration_date":         w.RegistrationDate,
+		// "client_company":            w.ClientCompany,
+		// "sub_category":              w.SubCategory,
+		// "work_request_items":        w.WorkRequestItems,
+		// "estimated_completion_time": w.EstimatedCompletionTime,
+		"url": w.Url,
 	}
 
 	// 해당 필터로 이미 존재하는지 확인
@@ -151,22 +152,40 @@ func (w *WorkHistory) Put() error {
 		// 일부 데이터만 일치하면 상태를 업데이트
 		update := bson.M{
 			"$set": bson.M{
-				"index":   w.Index,
-				"status":  w.Status,
-				"worker":  w.Worker,
-				"ip":      w.IP,
-				"brand":   w.Brand,
-				"section": w.Section,
-				"url":     w.Url,
+				// "index":   w.Index,
+				// "status":  w.Status,
+				// "worker":  w.Worker,
+				// "ip":      w.IP,
+				// "brand":   w.Brand,
+				// "section": w.Section,
+				"index":                     w.Index,
+				"status":                    w.Status,
+				"registration_date":         w.RegistrationDate,
+				"desired_working_hours":     w.DesiredWorkingHours,
+				"estimated_completion_time": w.EstimatedCompletionTime,
+				"worker":                    w.Worker,
+				"work_request_items":        w.WorkRequestItems,
+				"work_request_details":      w.WorkRequestDetails,
+				"sub_category":              w.SubCategory,
+				"client_company":            w.ClientCompany,
+				"ip":                        w.IP,
+				"brand":                     w.Brand,
+				"section":                   w.Section,
+				// "url":     w.Url,
 			},
 		}
 		_, err = col.UpdateOne(context.Background(), filter, update)
+		// fmt.Printf("업데이트완료: %s\n", w.Url)
 		return err
 	}
+	// else {
+	// 	fmt.Printf("필터 검색 에러: %s\n%s\n", w.Url, err)
+	// }
 
 	if err == mongo.ErrNoDocuments {
 		// 완전히 일치하는 데이터가 없으면 새 데이터 삽입
 		_, err = col.InsertOne(context.Background(), w)
+		// fmt.Printf("삽입완료: %s\n", w.Url)
 		return err
 	}
 

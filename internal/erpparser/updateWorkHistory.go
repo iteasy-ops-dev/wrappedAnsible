@@ -67,6 +67,9 @@ func ProcessDate(date string) error {
 	}
 
 	// TODO: 작업 준비중이 체크 안되어 있는 상태. 넣을 것인가?
+	// 처리상황: 작업의뢰, 작업중, 작업완료, 추가요청, 작업종료
+	// 작업자: 전체
+	// 브랜드: 호스팅, 클라우드, 애저, 에떱
 	payload := url.Values{
 		"0[name]":    {"hopeCal1"},
 		"0[value]":   {"0000-00-00"},
@@ -202,14 +205,6 @@ func ProcessDate(date string) error {
 				m.Setworker(columnContent)
 				// fmt.Printf("작업자: %s\n", columnContent)
 			case 7:
-				// a 태그에 있는 url은 추출하고 싶다.
-				// cell.Find("a").Each(func(k int, link *goquery.Selection) {
-				// 	url, exists := link.Attr("href")
-				// 	if exists {
-				// 		// fmt.Printf("링크 URL: %s\n", url)
-				// 		m.Seturl(url)
-				// 	}
-				// })
 				// erp 링크
 				cell.Find("a").Each(func(k int, link *goquery.Selection) {
 					class, _ := link.Attr("class")
@@ -233,28 +228,6 @@ func ProcessDate(date string) error {
 						m.SetworkRequestDetails(content)
 					}
 				})
-
-				// if strings.Contains(columnContent, "    ") {
-				// 	splitIndex := strings.Index(columnContent, "    ")
-				// 	if splitIndex != -1 {
-				// 		item := strings.TrimSpace(columnContent[:splitIndex])
-				// 		content := strings.TrimSpace(columnContent[splitIndex+5:])
-				// 		// fmt.Printf("작업의뢰 항목: %s\n", item)
-				// 		// fmt.Printf("작업의뢰 내용: %s\n", content)
-				// 		m.SetworkRequestItems(item)
-				// 		if cell.Find("table").Length() > 0 {
-				// 			return // 내부 테이블이 있는 td를 건너뜁니다
-				// 		}
-				// 		m.SetworkRequestDetails(content)
-				// 	} else {
-				// 		// fmt.Printf("작업의뢰 항목: %s\n", columnContent)
-				// 		m.SetworkRequestItems(columnContent)
-				// 	}
-				// } else {
-				// 	m.SetworkRequestItems(columnContent)
-				// 	// fmt.Printf("작업의뢰 항목: %s\n", columnContent)
-				// }
-
 			case 8:
 				m.SetsubCategory(columnContent)
 				// fmt.Printf("소분류: %s\n", columnContent)

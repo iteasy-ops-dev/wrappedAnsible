@@ -176,6 +176,7 @@ func WorkHistoryParsing() ([]WorkHistory, error) {
 		var workHistory WorkHistory
 
 		row.Find("td").Each(func(j int, cell *goquery.Selection) {
+			// row.ChildrenFiltered("td").Each(func(j int, cell *goquery.Selection) {
 			columnIndex := j + 1
 			columnContent := strings.TrimSpace(cell.Text())
 
