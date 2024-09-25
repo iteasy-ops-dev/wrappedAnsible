@@ -1,7 +1,6 @@
 package erpparser
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
@@ -88,7 +87,7 @@ func WorkHistoryParsing() ([]WorkHistory, error) {
 			case 12:
 				workHistory.RegistrationType = columnContent
 			default:
-				fmt.Printf("기타: %s\n", columnContent)
+				// log.Printf("기타: %s\n", columnContent)
 			}
 		})
 

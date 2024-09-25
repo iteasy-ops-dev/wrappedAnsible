@@ -1,7 +1,6 @@
 package erpparser
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -36,22 +35,22 @@ func ProcessDate(date string) error {
 			switch columnIndex {
 			case 1:
 				m.Setindex(columnContent)
-				// fmt.Printf("인덱스: %s\n", columnContent)
+				// log.Printf("인덱스: %s\n", columnContent)
 			case 2:
 				m.Setstatus(columnContent)
-				// fmt.Printf("처리 상황: %s\n", columnContent)
+				// log.Printf("처리 상황: %s\n", columnContent)
 			case 3:
 				m.SetregistrationDate(columnContent)
-				// fmt.Printf("등록일: %s\n", columnContent)
+				// log.Printf("등록일: %s\n", columnContent)
 			case 4:
 				m.SetdesiredWorkingHours(columnContent)
-				// fmt.Printf("작업 희망시간: %s\n", columnContent)
+				// log.Printf("작업 희망시간: %s\n", columnContent)
 			case 5:
 				m.SetestimatedCompletionTime(columnContent)
-				// fmt.Printf("완료 예정시간: %s\n", columnContent)
+				// log.Printf("완료 예정시간: %s\n", columnContent)
 			case 6:
 				m.Setworker(columnContent)
-				// fmt.Printf("작업자: %s\n", columnContent)
+				// log.Printf("작업자: %s\n", columnContent)
 			case 7:
 				// erp 링크
 				cell.Find("a").Each(func(k int, link *goquery.Selection) {
@@ -78,21 +77,21 @@ func ProcessDate(date string) error {
 				})
 			case 8:
 				m.SetsubCategory(columnContent)
-				// fmt.Printf("소분류: %s\n", columnContent)
+				// log.Printf("소분류: %s\n", columnContent)
 			case 9:
 				m.SetclientCompany(columnContent)
-				// fmt.Printf("업체명: %s\n", columnContent)
+				// log.Printf("업체명: %s\n", columnContent)
 			case 10:
 				m.Setip(columnContent)
-				// fmt.Printf("IP: %s\n", columnContent)
+				// log.Printf("IP: %s\n", columnContent)
 			case 11:
 				m.Setbrand(columnContent)
-				// fmt.Printf("브랜드: %s\n", columnContent)
+				// log.Printf("브랜드: %s\n", columnContent)
 			case 12:
 				m.Setsection(columnContent)
-				// fmt.Printf("등록구분: %s\n", columnContent)
+				// log.Printf("등록구분: %s\n", columnContent)
 			default:
-				fmt.Printf("기타: %s\n", columnContent)
+				// log.Printf("기타: %s\n", columnContent)
 			}
 		})
 

@@ -164,10 +164,10 @@ func Output(outputData []byte) *AnsibleOutput {
 // 				// Failed:  hostInfo.Failed,
 // 				// Results: hostInfo.Results,
 // 			})
-// 			// fmt.Printf("Host: %s\n", host)
-// 			// fmt.Printf("Action: %s\n", taskInfo.Action)
-// 			// fmt.Printf("Failed: %+v\n", taskInfo.Failed)
-// 			// fmt.Printf("Facts: %+v\n", hostInfo.Facts)
+// 			// log.Printf("Host: %s\n", host)
+// 			// log.Printf("Action: %s\n", taskInfo.Action)
+// 			// log.Printf("Failed: %+v\n", taskInfo.Failed)
+// 			// log.Printf("Facts: %+v\n", hostInfo.Facts)
 // 		}
 // 	}
 

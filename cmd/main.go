@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -113,7 +112,7 @@ func main() {
 
 	g.Go(func() error {
 		sig := <-sigCh
-		fmt.Printf("👋 Received signal: %v, initiating shutdown...\n", sig)
+		log.Printf("👋 Received signal: %v, initiating shutdown...\n", sig)
 		cancel()
 		return nil
 	})

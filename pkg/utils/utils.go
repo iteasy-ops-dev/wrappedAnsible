@@ -53,7 +53,7 @@ func ReadFile(file *os.File) []byte {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// fmt.Printf("read %d bytes: %q\n", count, data[:count])
+	// log.Printf("read %d bytes: %q\n", count, data[:count])
 	return data[:count]
 }
 
@@ -147,7 +147,7 @@ func SendEmail(to, subject, mailBody string) error {
 	)
 
 	if err != nil {
-		fmt.Printf("메일 전송 실패: %v\n", err)
+		log.Printf("메일 전송 실패: %v\n", err)
 		return err
 	}
 	return nil

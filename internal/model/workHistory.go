@@ -116,16 +116,16 @@ func (w *WorkHistory) isValid() bool {
 
 func (w *WorkHistory) PrintValidations() {
 	log.Println("==================  PrintValidations  =========================")
-	fmt.Printf("Index: '%s' Valid: %v\n", w.Index, w.isIndexValid())
-	fmt.Printf("Status: '%s' Valid: %v\n", w.Status, strings.TrimSpace(w.Status) != "")
-	fmt.Printf("RegistrationDate: '%s' Valid: %v\n", w.RegistrationDate, strings.TrimSpace(w.RegistrationDate) != "")
-	// fmt.Printf("EstimatedCompletionTime: '%s' Valid: %v\n", w.EstimatedCompletionTime, strings.TrimSpace(w.EstimatedCompletionTime) != "")
-	fmt.Printf("WorkRequestItems: '%s' Valid: %v\n", w.WorkRequestItems, strings.TrimSpace(w.WorkRequestItems) != "")
-	// fmt.Printf("SubCategory: '%s' Valid: %v\n", w.SubCategory, strings.TrimSpace(w.SubCategory) != "")
-	fmt.Printf("ClientCompany: '%s' Valid: %v\n", w.ClientCompany, strings.TrimSpace(w.ClientCompany) != "")
-	fmt.Printf("Brand: '%s' Valid: %v\n", w.Brand, strings.TrimSpace(w.Brand) != "")
-	fmt.Printf("Section: '%s' Valid: %v\n", w.Section, strings.TrimSpace(w.Section) != "")
-	fmt.Printf("URL: '%s' Valid: %v\n", w.Url, strings.TrimSpace(w.Url) != "")
+	log.Printf("Index: '%s' Valid: %v\n", w.Index, w.isIndexValid())
+	log.Printf("Status: '%s' Valid: %v\n", w.Status, strings.TrimSpace(w.Status) != "")
+	log.Printf("RegistrationDate: '%s' Valid: %v\n", w.RegistrationDate, strings.TrimSpace(w.RegistrationDate) != "")
+	// log.Printf("EstimatedCompletionTime: '%s' Valid: %v\n", w.EstimatedCompletionTime, strings.TrimSpace(w.EstimatedCompletionTime) != "")
+	log.Printf("WorkRequestItems: '%s' Valid: %v\n", w.WorkRequestItems, strings.TrimSpace(w.WorkRequestItems) != "")
+	// log.Printf("SubCategory: '%s' Valid: %v\n", w.SubCategory, strings.TrimSpace(w.SubCategory) != "")
+	log.Printf("ClientCompany: '%s' Valid: %v\n", w.ClientCompany, strings.TrimSpace(w.ClientCompany) != "")
+	log.Printf("Brand: '%s' Valid: %v\n", w.Brand, strings.TrimSpace(w.Brand) != "")
+	log.Printf("Section: '%s' Valid: %v\n", w.Section, strings.TrimSpace(w.Section) != "")
+	log.Printf("URL: '%s' Valid: %v\n", w.Url, strings.TrimSpace(w.Url) != "")
 }
 
 func (w *WorkHistory) Put() error {
@@ -176,17 +176,17 @@ func (w *WorkHistory) Put() error {
 			},
 		}
 		_, err = col.UpdateOne(context.Background(), filter, update)
-		// fmt.Printf("업데이트완료: %s\n", w.Url)
+		// log.Printf("업데이트완료: %s\n", w.Url)
 		return err
 	}
 	// else {
-	// 	fmt.Printf("필터 검색 에러: %s\n%s\n", w.Url, err)
+	// 	log.Printf("필터 검색 에러: %s\n%s\n", w.Url, err)
 	// }
 
 	if err == mongo.ErrNoDocuments {
 		// 완전히 일치하는 데이터가 없으면 새 데이터 삽입
 		_, err = col.InsertOne(context.Background(), w)
-		// fmt.Printf("삽입완료: %s\n", w.Url)
+		// log.Printf("삽입완료: %s\n", w.Url)
 		return err
 	}
 
