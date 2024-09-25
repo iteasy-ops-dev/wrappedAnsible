@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -100,7 +101,7 @@ func init() {
 		panic(fmt.Sprintf("Error loading config: %v", err))
 	}
 
-	fmt.Printf("✅ Setup Config Success: Type is %s\n", env)
+	log.Printf("✅ Setup Config Success: Type is %s\n", env)
 }
 
 // LoadConfig는 구성 파일을 읽어와 Config 구조체로 반환합니다.

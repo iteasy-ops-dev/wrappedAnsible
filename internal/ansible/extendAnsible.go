@@ -92,7 +92,7 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 	// ansible 구동 후 임시 인벤토리 파일 삭제
 	defer utils.RemoveFile(e.inventory)
 
-	fmt.Printf(
+	log.Printf(
 		"⚙️ Used Playbook: %s\n⚙️ Extra Vars: %s\n",
 		e.playBook, e.createExtraVars(),
 	)

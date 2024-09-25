@@ -102,7 +102,7 @@ func main() {
 	}
 
 	g.Go(func() error {
-		fmt.Printf("✅ Welcome Wrapped Ansible Server. PORT %s\n", port)
+		log.Printf("✅ Welcome Wrapped Ansible Server. PORT %s\n", port)
 		return server.ListenAndServe()
 		// return server.ListenAndServeTLS("server.crt", "server.key")
 	})

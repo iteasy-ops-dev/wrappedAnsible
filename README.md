@@ -144,13 +144,16 @@ config
 
 HISTORY
 ---------
-24/09/20
+`24/09/20`
 - 이진주 매니저님
-  - [ ] erp 파싱 문제(https://admin.ksidc.net/service/request_info/?mem_idx=40396&idx=229099)
+  - [x] erp 파싱 문제(https://admin.ksidc.net/service/request_info/?mem_idx=40396&idx=229099)
+    - [x] text로 파싱하던 것을 html로 파싱하는 것으로 해결
+    - [x] 정규 표현식 수정
+    - [x] ID, PW는 같이 파싱하여 배열의 인덱스로 추출
   - [ ] 원격 서버 파이썬 버전 낮은 문제 발생(python 2.7 미만 버전)
     - [ ] ansible raw 모듈에 대한 고찰이 필요. 아니면 쉘 스크립트로?
   - [ ] vhost 복수개 입력 불가능 문제
 
-24/08/26
+`24/08/26`
 - 서강호 매니저님
   - [x] vhost의 경로변경

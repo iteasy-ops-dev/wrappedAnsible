@@ -113,9 +113,15 @@ func (e *ErpParser) Parsing() {
 			log.Println("문서 로딩 오류:", err)
 			return
 		}
-		text := doc.Text()
+		// text := doc.Text()
+		text, err := doc.Html()
+		if err != nil {
+			log.Println("HTML 가져오기 오류:", err)
+			return
+		}
 		combinedText += text + "\n"
 	})
+
 	combinedText = strings.TrimSpace(combinedText)
 
 	info, err := extractInfo(combinedText)
@@ -246,13 +252,13 @@ func extractInfo(text string) (Info, error) {
 
 	// 정규 표현식 패턴 정의
 	patterns := map[string]*regexp.Regexp{
-		"user_id":      regexp.MustCompile(`FTP 계정정보\s*ID\s*:\s*(\S+)`),
-		"user_pass":    regexp.MustCompile(`PW\s*:\s*(\S+)`),
+		"user_id":      regexp.MustCompile(`ID\s*:\s*([^<\s]+)`),
+		"user_pass":    regexp.MustCompile(`PW\s*:\s*([^<\s]+)`),
 		"disk_quota":   regexp.MustCompile(`디스크할당량\s*:\s*(\d+)`),
 		"cband_limit":  regexp.MustCompile(`1일 트래픽 할당량\s*:\s*(\d+)`),
-		"vhost_domain": regexp.MustCompile(`연결도메인\s*:\s*(\S+)`),
-		"db_user":      regexp.MustCompile(`DB 계정정보\s*ID\s*:\s*(\S+)`),
-		"db_name":      regexp.MustCompile(`DBNAME\s*:\s*(\S+)`),
+		"vhost_domain": regexp.MustCompile(`연결도메인\s*:\s*([^<\s]+)`),
+		"db_user":      regexp.MustCompile(`DB 계정정보\s*ID\s*:\s*([^<\s]+)`),
+		"db_name":      regexp.MustCompile(`DBNAME\s*:\s*([^<\s]+)`),
 	}
 
 	// 먼저 일반 패턴들을 처리합니다.
@@ -279,8 +285,14 @@ func extractInfo(text string) (Info, error) {
 		}
 	}
 
+	idMatches := regexp.MustCompile(`ID\s*:\s*([^<\s]+)`).FindAllStringSubmatch(text, -1)
+	if len(idMatches) >= 2 {
+		info.UserID = strings.TrimSpace(idMatches[0][1]) // 첫 번째 id 값
+		info.DBUser = strings.TrimSpace(idMatches[1][1]) // 두 번째 id 값
+	}
+
 	// "PW" 패턴은 FindAllStringSubmatch로 처리합니다.
-	passMatches := regexp.MustCompile(`PW\s*:\s*(\S+)`).FindAllStringSubmatch(text, -1)
+	passMatches := regexp.MustCompile(`PW\s*:\s*([^<\s]+)`).FindAllStringSubmatch(text, -1)
 	if len(passMatches) >= 2 {
 		info.UserPass = strings.TrimSpace(passMatches[0][1])   // 첫 번째 PW 값
 		info.DBPassword = strings.TrimSpace(passMatches[1][1]) // 두 번째 PW 값
