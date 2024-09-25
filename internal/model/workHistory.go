@@ -137,7 +137,7 @@ func (w *WorkHistory) Put() error {
 	// 필드 일치 여부를 확인하기 위한 필터를 작성
 	filter := bson.M{
 		// "index":                     w.Index, // 인덱스가 변할 수도 있었음.
-		// "registration_date":         w.RegistrationDate,
+		"registration_date": w.RegistrationDate,
 		// "client_company":            w.ClientCompany,
 		// "sub_category":              w.SubCategory,
 		// "work_request_items":        w.WorkRequestItems,

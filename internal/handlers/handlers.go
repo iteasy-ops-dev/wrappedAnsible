@@ -13,6 +13,8 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/logout", logout)
 	mux.HandleFunc("/reset_password", resetPassword)
 
+	mux.HandleFunc("/ws", handleWebSocket)
+
 	// with JWT
 	mux.HandleFunc("/extend_extension", extendJWT)
 	mux.HandleFunc("/functions", functions)
