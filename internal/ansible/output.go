@@ -2,7 +2,7 @@ package ansible
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 )
 
 type AnsibleOutput struct {
@@ -138,7 +138,7 @@ func Output(outputData []byte) *AnsibleOutput {
 
 	err := json.Unmarshal(outputData, &output)
 	if err != nil {
-		fmt.Println("Error parsing JSON:", err)
+		log.Println("Error parsing JSON:", err)
 	}
 
 	return &output

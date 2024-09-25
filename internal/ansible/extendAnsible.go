@@ -79,7 +79,7 @@ func (e *extendAnsible) createExtraVars() string {
 	// 꿀팁: https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html
 	jsonString, err := json.Marshal(e.Options)
 	if err != nil {
-		fmt.Println("JSON marshaling failed:", err)
+		log.Println("JSON marshaling failed:", err)
 	}
 	return string(jsonString)
 }
@@ -115,7 +115,7 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 		select {
 		case <-e.Ctx.Done():
 			// 클라이언트 연결이 끊겼을 때 작업을 중단합니다.
-			fmt.Println("❌ Client connection closed. Cancelling Ansible execution.")
+			log.Println("❌ Client connection closed. Cancelling Ansible execution.")
 			cmd.Process.Kill() // Ansible 프로세스를 강제로 종료합니다.
 			status = false
 		case <-done:
@@ -127,8 +127,8 @@ func (e *extendAnsible) excute() (*AnsibleProcessStatus, error) {
 	stdoutStderr, err := cmd.CombinedOutput()
 
 	if err != nil {
-		fmt.Println(fmt.Errorf("❌ ERROR: stdoutStderr: %w", err))
-		// fmt.Println(fmt.Errorf("❌ ERROR: stdoutStderr: %s", stdoutStderr))
+		log.Println(fmt.Errorf("❌ ERROR: stdoutStderr: %w", err))
+		// log.Println(fmt.Errorf("❌ ERROR: stdoutStderr: %s", stdoutStderr))
 		status = false
 	}
 

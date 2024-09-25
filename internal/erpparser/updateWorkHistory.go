@@ -28,7 +28,7 @@ func ProcessDate(date string) error {
 	doc.Find(".tbl_style3 tbody tr").Each(func(i int, row *goquery.Selection) {
 		m := model.NewWorkHistory()
 
-		// fmt.Println("================================================")
+		// log.Println("================================================")
 		row.Find("td").Each(func(j int, cell *goquery.Selection) {
 			columnIndex := j + 1
 			columnContent := strings.TrimSpace(cell.Text())

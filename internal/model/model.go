@@ -3,7 +3,6 @@ package model
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -39,7 +38,7 @@ func getInstance() *dbInstance {
 	// 	SetMaxConnIdleTime(5 * time.Minute) // 커넥션 풀 내 유휴 커넥션 유지 시간
 
 	once.Do(func() {
-		fmt.Println("⚙️ Creating mongo Client now.")
+		log.Println("⚙️ Creating mongo Client now.")
 		// client, err := mongo.Connect(context.Background(), clientOptions)
 		client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(config.GlobalConfig.MongoDB.URL))
 		if err != nil {
@@ -54,7 +53,7 @@ func getInstance() *dbInstance {
 		mongoInstance = &dbInstance{
 			client: client,
 		}
-		fmt.Println("✅ Mongo Client created.")
+		log.Println("✅ Mongo Client created.")
 	})
 	return mongoInstance
 }
@@ -75,7 +74,7 @@ func PingMongoDB(client *mongo.Client) {
 	if err != nil {
 		log.Fatalf("❌ Failed to ping MongoDB: %v", err)
 	} else {
-		fmt.Println("✅ Successfully connected to MongoDB!")
+		log.Println("✅ Successfully connected to MongoDB!")
 		db = mongoInstance.client.Database(config.GlobalConfig.MongoDB.Database)
 	}
 }

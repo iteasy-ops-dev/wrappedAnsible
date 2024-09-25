@@ -2,7 +2,7 @@ package erpparser
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"net/url"
@@ -42,7 +42,7 @@ func New(url string) *ErpParser {
 func (e *ErpParser) Parsing() {
 	jar, err := cookiejar.New(nil)
 	if err != nil {
-		fmt.Println("쿠키 저장소 생성 실패:", err)
+		log.Println("쿠키 저장소 생성 실패:", err)
 		return
 	}
 
@@ -56,7 +56,7 @@ func (e *ErpParser) Parsing() {
 
 	loginReq, err := http.NewRequest("POST", config.GlobalConfig.Erp.Login.Url, strings.NewReader(encodedData))
 	if err != nil {
-		fmt.Println("HTTP 요청 생성 실패:", err)
+		log.Println("HTTP 요청 생성 실패:", err)
 		return
 	}
 
@@ -71,7 +71,7 @@ func (e *ErpParser) Parsing() {
 
 	loginResp, err := client.Do(loginReq)
 	if err != nil {
-		fmt.Println("HTTP 요청 실패:", err)
+		log.Println("HTTP 요청 실패:", err)
 		return
 	}
 	defer loginResp.Body.Close()
@@ -83,7 +83,7 @@ func (e *ErpParser) Parsing() {
 
 	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
-		fmt.Println("HTTP 요청 생성 실패:", err)
+		log.Println("HTTP 요청 생성 실패:", err)
 		return
 	}
 
@@ -93,14 +93,14 @@ func (e *ErpParser) Parsing() {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		fmt.Println("HTTP 요청 실패:", err)
+		log.Println("HTTP 요청 실패:", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		fmt.Println("HTML 파싱 실패:", err)
+		log.Println("HTML 파싱 실패:", err)
 		return
 	}
 
@@ -110,7 +110,7 @@ func (e *ErpParser) Parsing() {
 		htmlContent = strings.ReplaceAll(htmlContent, "</p>", "</p>\n")
 		doc, err := goquery.NewDocumentFromReader(strings.NewReader(htmlContent))
 		if err != nil {
-			fmt.Println("문서 로딩 오류:", err)
+			log.Println("문서 로딩 오류:", err)
 			return
 		}
 		text := doc.Text()
@@ -120,7 +120,7 @@ func (e *ErpParser) Parsing() {
 
 	info, err := extractInfo(combinedText)
 	if err != nil {
-		fmt.Println("Error:", err)
+		log.Println("Error:", err)
 		return
 	}
 
@@ -161,28 +161,28 @@ func (e *ErpParser) ToBytes() []byte {
 // 			switch key {
 // 			case "user_id":
 // 				info.UserID = match[1]
-// 				fmt.Println("UserID:", info.UserID)
+// 				log.Println("UserID:", info.UserID)
 // 			case "user_pass":
 // 				info.UserPass = match[1]
-// 				fmt.Println("UserPass:", info.UserPass)
+// 				log.Println("UserPass:", info.UserPass)
 // 			case "disk_quota":
 // 				info.DiskQuota = match[1]
-// 				fmt.Println("DiskQuota:", info.DiskQuota)
+// 				log.Println("DiskQuota:", info.DiskQuota)
 // 			case "cband_limit":
 // 				info.CbandLimit = match[1]
-// 				fmt.Println("CbandLimit:", info.CbandLimit)
+// 				log.Println("CbandLimit:", info.CbandLimit)
 // 			case "vhost_domain":
 // 				info.VhostDomain = match[1]
-// 				fmt.Println("VhostDomain:", info.VhostDomain)
+// 				log.Println("VhostDomain:", info.VhostDomain)
 // 			case "db_user":
 // 				info.DBUser = match[1]
-// 				fmt.Println("DBUser:", info.DBUser)
+// 				log.Println("DBUser:", info.DBUser)
 // 			case "db_name":
 // 				info.DBName = match[1]
-// 				fmt.Println("DBName:", info.DBName)
+// 				log.Println("DBName:", info.DBName)
 // 			case "db_password":
 // 				info.DBPassword = match[1]
-// 				fmt.Println("DBPassword:", info.DBPassword)
+// 				log.Println("DBPassword:", info.DBPassword)
 // 			}
 // 		}
 // 	}
@@ -233,8 +233,8 @@ func (e *ErpParser) ToBytes() []byte {
 // 	if len(passMatches) >= 2 {
 // 		info.UserPass = passMatches[0][1]   // 첫 번째 PW 값
 // 		info.DBPassword = passMatches[1][1] // 두 번째 PW 값
-// 		// fmt.Println("UserPass:", info.UserPass)
-// 		// fmt.Println("DBPassword:", info.DBPassword)
+// 		// log.Println("UserPass:", info.UserPass)
+// 		// log.Println("DBPassword:", info.DBPassword)
 // 	}
 
 // 	return info, nil

@@ -59,7 +59,7 @@ func _mongo() {
 }
 
 func _ansible() {
-	fmt.Println("⚙️ Wrapped Ansible Server Init.")
+	log.Println("⚙️ Wrapped Ansible Server Init.")
 	ctx, cancel := context.WithCancel(context.Background())
 	// g, ctx := errgroup.WithContext(ctx)
 	defer cancel()
@@ -120,7 +120,7 @@ func main() {
 
 	g.Go(func() error {
 		<-ctx.Done()
-		fmt.Println("👋 Shutting down server...")
+		log.Println("👋 Shutting down server...")
 		return server.Shutdown(context.Background())
 	})
 

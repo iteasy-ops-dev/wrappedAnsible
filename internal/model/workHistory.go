@@ -3,6 +3,7 @@ package model
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -86,7 +87,7 @@ func (w *WorkHistory) Seturl(url string) {
 }
 
 func (w *WorkHistory) Print() {
-	fmt.Println(w)
+	log.Println(w)
 }
 
 // 인덱스가 숫자로만 구성된 문자열인지 확인
@@ -114,7 +115,7 @@ func (w *WorkHistory) isValid() bool {
 }
 
 func (w *WorkHistory) PrintValidations() {
-	fmt.Println("==================  PrintValidations  =========================")
+	log.Println("==================  PrintValidations  =========================")
 	fmt.Printf("Index: '%s' Valid: %v\n", w.Index, w.isIndexValid())
 	fmt.Printf("Status: '%s' Valid: %v\n", w.Status, strings.TrimSpace(w.Status) != "")
 	fmt.Printf("RegistrationDate: '%s' Valid: %v\n", w.RegistrationDate, strings.TrimSpace(w.RegistrationDate) != "")

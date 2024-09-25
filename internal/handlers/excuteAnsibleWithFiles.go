@@ -26,8 +26,8 @@ package handlers
 // 		return
 // 	}
 
-// 	// fmt.Println("Content-Type: ")
-// 	// fmt.Println(r.Header.Get("Content-Type"))
+// 	// log.Println("Content-Type: ")
+// 	// log.Println(r.Header.Get("Content-Type"))
 
 // 	ctx := r.Context()
 // 	g, ctx := errgroup.WithContext(ctx)

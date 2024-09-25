@@ -146,10 +146,11 @@ HISTORY
 ---------
 24/09/20
 - 이진주 매니저님
-- erp 파싱 문제(https://admin.ksidc.net/service/request_info/?mem_idx=40396&idx=229099)
-- 원격 서버 파이썬 버전 낮은 문제 발생(python 2.7 미만 버전)
-- vhost 복수개 입력 불가능 문제
+  - [ ] erp 파싱 문제(https://admin.ksidc.net/service/request_info/?mem_idx=40396&idx=229099)
+  - [ ] 원격 서버 파이썬 버전 낮은 문제 발생(python 2.7 미만 버전)
+    - [ ] ansible raw 모듈에 대한 고찰이 필요. 아니면 쉘 스크립트로?
+  - [ ] vhost 복수개 입력 불가능 문제
 
 24/08/26
 - 서강호 매니저님
-- vhost의 경로변경
+  - [x] vhost의 경로변경

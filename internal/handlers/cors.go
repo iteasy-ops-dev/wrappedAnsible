@@ -8,8 +8,8 @@ func CorsMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8888")
 		origin := r.Header.Get("Origin")
-		// fmt.Println("Origin:")
-		// fmt.Println(origin)
+		// log.Println("Origin:")
+		// log.Println(origin)
 		w.Header().Set("Access-Control-Allow-Origin", origin)
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Authorization")
