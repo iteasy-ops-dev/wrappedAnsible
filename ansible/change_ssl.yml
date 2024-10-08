@@ -1,4 +1,6 @@
 - hosts: all
   become: true
+  gather_facts: false
+
   roles:
     - ansible.roles.change_ssl
