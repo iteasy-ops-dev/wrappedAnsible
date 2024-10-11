@@ -36,10 +36,12 @@ type extendAnsible struct {
 	duration time.Duration
 }
 
+// ansible_ssh_extra_args='-o HostKeyAlgorithms=+ssh-rsa' 추가.
+// python 밑 os 낮은 버전들의 호환성을 위함.
 func (e *extendAnsible) generateInventoryPayload() []byte {
 	var buffer bytes.Buffer
 	for i := 0; i < len(e.IPs); i++ {
-		entry := fmt.Sprintf(`%s ansible_user=%s ansible_password="%s" ansible_become_pass="%s"`+"\n", e.IPs[i], e.Account, e.Password, e.Password)
+		entry := fmt.Sprintf(`%s ansible_user=%s ansible_password="%s" ansible_become_pass="%s" ansible_ssh_extra_args='-o HostKeyAlgorithms=+ssh-rsa'`+"\n", e.IPs[i], e.Account, e.Password, e.Password)
 		buffer.WriteString(entry)
 	}
 	return buffer.Bytes()

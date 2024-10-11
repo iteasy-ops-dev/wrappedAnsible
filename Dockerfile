@@ -21,7 +21,31 @@ FROM ubuntu:20.04
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# 필수 패키지 설치 및 청소
+# # 필수 패키지 설치 및 청소
+# RUN apt-get update && \
+#     apt-get install -y \
+#     gcc \
+#     python3 \
+#     python3-pip \
+#     curl \
+#     net-tools \
+#     vim \
+#     git \
+#     openssh-server \
+#     sshpass && \
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # Locale 설치
+# RUN apt-get update && apt-get install -y locales && \
+#     locale-gen en_US.UTF-8 && \
+#     update-locale LANG=en_US.UTF-8 LC_ALL=C.UTF-8
+
+# # 환경 변수 설정
+# ENV LANG=en_US.UTF-8
+# ENV LC_ALL=C.UTF-8
+
+# Install necessary packages including locales-all
 RUN apt-get update && \
     apt-get install -y \
     gcc \
@@ -32,9 +56,15 @@ RUN apt-get update && \
     vim \
     git \
     openssh-server \
-    sshpass && \
+    sshpass \
+    locales-all && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Set locale environment variables
+ENV LANG=ko_KR.UTF-8
+ENV LANGUAGE=ko_KR.UTF-8
+ENV LC_ALL=ko_KR.UTF-8
 
 # Python 패키지 설치
 RUN pip3 install --upgrade pip && \

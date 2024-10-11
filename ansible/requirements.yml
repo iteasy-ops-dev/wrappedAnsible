@@ -26,3 +26,7 @@
 - src: https://github.com/iteasy-ops-dev/ansible.roles.web_conf_scout.git
   scm: git
   version: main
+
+- src: https://github.com/iteasy-ops-dev/ansible.roles.3way_manager.git
+  scm: git
+  version: main
