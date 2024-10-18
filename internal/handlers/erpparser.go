@@ -20,7 +20,7 @@ func erpParser(w http.ResponseWriter, r *http.Request) {
 	}
 	data, err := utils.ParseRequestBody[erpParserReq](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

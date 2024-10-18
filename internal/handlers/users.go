@@ -112,7 +112,7 @@ func updateUserActive(w http.ResponseWriter, r *http.Request) {
 	}
 	b, err := utils.ParseRequestBody[updateActiveReq](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -137,7 +137,7 @@ func updateUserPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	b, err := utils.ParseRequestBody[updatePasswordReq](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

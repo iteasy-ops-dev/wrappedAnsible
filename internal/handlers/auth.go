@@ -16,6 +16,7 @@ type userReq struct {
 type resetPasswordReq struct {
 	Email string `json:"email"`
 }
+
 type logoutReq struct {
 	Email string `json:"email"`
 }
@@ -26,7 +27,7 @@ func signUp(w http.ResponseWriter, r *http.Request) {
 	}
 	b, err := utils.ParseRequestBody[userReq](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -97,7 +98,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 	b, err := utils.ParseRequestBody[userReq](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -144,7 +145,7 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	}
 	b, err := utils.ParseRequestBody[logoutReq](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -171,7 +172,7 @@ func resetPassword(w http.ResponseWriter, r *http.Request) {
 	}
 	b, err := utils.ParseRequestBody[resetPasswordReq](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

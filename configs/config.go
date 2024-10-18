@@ -9,12 +9,13 @@ import (
 
 // Config는 JSON 구성 파일의 구조를 정의합니다.
 type Config struct {
-	Default DefaultConfig `json:"default"`
-	JWT     JWTConfig     `json:"jwt"`
-	Ansible AnsibleConfig `json:"ansible"`
-	MongoDB MongoDBConfig `json:"mongodb"`
-	Erp     ErpConfig     `json:"erp"`
-	Smtp    SmtpConfig    `json:"smtp"`
+	Default     DefaultConfig     `json:"default"`
+	JWT         JWTConfig         `json:"jwt"`
+	Ansible     AnsibleConfig     `json:"ansible"`
+	MongoDB     MongoDBConfig     `json:"mongodb"`
+	Erp         ErpConfig         `json:"erp"`
+	Smtp        SmtpConfig        `json:"smtp"`
+	SentinelOne SentinelOneConfig `json:"sentinelone"`
 }
 
 type DefaultConfig struct {
@@ -53,9 +54,12 @@ type MongoDBConfig struct {
 }
 
 type MongoDBCollections struct {
-	AnsibleProcessStatus string `json:"ansible_process_status"`
-	Auth                 string `json:"auth"`
-	WorkHistory          string `json:"work_history"`
+	AnsibleProcessStatus       string `json:"ansible_process_status"`
+	Auth                       string `json:"auth"`
+	WorkHistory                string `json:"work_history"`
+	SentinelOneAgents          string `json:"sentinelone_agents"`
+	SentinelOneApplication     string `json:"sentinelone_applications"`
+	SentinelOneApplicationRisk string `json:"sentinelone_applications_risk"`
 }
 
 type ErpConfig struct {
@@ -71,6 +75,7 @@ type ErpLoginConfig struct {
 	AllowType   string `json:"allow_type"`
 	LoginBtn    string `json:"login_btn"`
 }
+
 type ErpWorkHistoryConfig struct {
 	Url string `json:"url"`
 }
@@ -79,6 +84,16 @@ type SmtpConfig struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
 	From string `json:"from"`
+}
+
+type SentinelOneConfig struct {
+	URLs SentinelOneUrls `json:"urls"`
+}
+
+type SentinelOneUrls struct {
+	AgentsURL          string `json:"agents_url"`
+	ApplicationURL     string `json:"applications_url"`
+	ApplicationRiskURL string `json:"applicationRisk_url"`
 }
 
 // 전역 변수로 설정을 저장합니다.

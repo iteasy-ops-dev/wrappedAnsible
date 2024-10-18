@@ -30,4 +30,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/workhistory", workHistory)
 	mux.HandleFunc("/get-work-history", getWorkHistory)
 	mux.HandleFunc("/insight", insight)
+
+	// sentinelOne
+	mux.HandleFunc("/sentinelone/update", updateSentinelOne)
 }
