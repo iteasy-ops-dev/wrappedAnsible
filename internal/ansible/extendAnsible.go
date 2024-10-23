@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os/exec"
+	"strings"
 	"time"
 
 	config "iteasy.wrappedAnsible/configs"
@@ -16,14 +17,15 @@ import (
 type extendAnsible struct {
 	// DefaultAnsible DefaultAnsible
 	// Public
-	Ctx         context.Context
-	Type        string   // Require: Name of playbook
-	Email       string   // Require: Worker
-	Name        string   // Require: Worker
-	IPs         []string // Require: ips
-	Account     string   // Require: account
-	Password    string   // Require: remote server password
-	Description string   // Description
+	Ctx            context.Context
+	Type           string   // Require: Name of playbook
+	Email          string   // Require: Worker
+	Name           string   // Require: Worker
+	IPs            []string // Require: ips
+	Account        string   // Require: account
+	Password       string   // Require: remote server password
+	BecomePassword string   // Require: remote server root password
+	Description    string   // Description
 
 	Options map[string]interface{}
 
@@ -41,8 +43,16 @@ type extendAnsible struct {
 func (e *extendAnsible) generateInventoryPayload() []byte {
 	var buffer bytes.Buffer
 	for i := 0; i < len(e.IPs); i++ {
-		entry := fmt.Sprintf(`%s ansible_user=%s ansible_password="%s" ansible_become_pass="%s" ansible_ssh_extra_args='-o HostKeyAlgorithms=+ssh-rsa'`+"\n", e.IPs[i], e.Account, e.Password, e.Password)
-		buffer.WriteString(entry)
+		host := strings.Split(e.IPs[i], ":")
+		if len(host) == 0 { // 기본포트
+			entry := fmt.Sprintf(`%s ansible_host=%s ansible_user=%s ansible_password="%s" ansible_become_password="%s" ansible_ssh_extra_args='-o HostKeyAlgorithms=+ssh-rsa'`+"\n", host[0], host[0], e.Account, e.Password, e.BecomePassword)
+			buffer.WriteString(entry)
+			// fmt.Println(entry)
+		} else { // 커스텀 포트
+			entry := fmt.Sprintf(`%s ansible_host=%s ansible_port=%s ansible_user=%s ansible_password="%s" ansible_become_password="%s" ansible_ssh_extra_args='-o HostKeyAlgorithms=+ssh-rsa'`+"\n", host[0], host[0], host[1], e.Account, e.Password, e.BecomePassword)
+			buffer.WriteString(entry)
+			// fmt.Println(entry)
+		}
 	}
 	return buffer.Bytes()
 }
