@@ -44,7 +44,7 @@ func (e *extendAnsible) generateInventoryPayload() []byte {
 	var buffer bytes.Buffer
 	for i := 0; i < len(e.IPs); i++ {
 		host := strings.Split(e.IPs[i], ":")
-		if len(host) == 0 { // 기본포트
+		if len(host) == 1 { // 기본포트
 			entry := fmt.Sprintf(`%s ansible_host=%s ansible_user=%s ansible_password="%s" ansible_become_password="%s" ansible_ssh_extra_args='-o HostKeyAlgorithms=+ssh-rsa'`+"\n", host[0], host[0], e.Account, e.Password, e.BecomePassword)
 			buffer.WriteString(entry)
 			// fmt.Println(entry)
