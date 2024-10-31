@@ -1,4 +1,6 @@
-// TODO: 소켓이 끊어질 때 해당 세션도 끊어져야함.
+// TODO:
+// 소켓이 끊어질 때 해당 세션도 끊어져야함.
+// vim안되는 이유찾아야 함
 package handlers
 
 import (

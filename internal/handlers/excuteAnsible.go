@@ -22,6 +22,7 @@ func excuteAnsible(w http.ResponseWriter, r *http.Request) {
 	contentType := r.Header.Get("Content-Type")
 
 	if strings.Contains(contentType, "multipart/form-data") {
+		// TODO: 확장자 검사 추가. 화이트리스트로 검증
 		err := r.ParseMultipartForm(10 << 20) // 10MB max memory
 		if err != nil {
 			http.Error(w, "Unable to parse form", http.StatusBadRequest)

@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"io"
 	"log"
@@ -200,4 +202,51 @@ func ParseJSONBody(body io.Reader, v interface{}) error {
 		return fmt.Errorf("failed to unmarshal JSON: %v", err)
 	}
 	return nil
+}
+
+func VerifySSL(file string) (string, error) {
+	// 인증서 파일 읽기
+	certPEM, err := os.ReadFile(file)
+	if err != nil {
+		// log.Printf("인증서 파일을 읽는 중 오류 발생: %v\n", err)
+		return "", err
+	}
+
+	// PEM 블록 디코드
+	// block, rest := pem.Decode(certPEM)
+	block, _ := pem.Decode(certPEM)
+	if block == nil {
+		// fmt.Println("유효한 PEM 데이터가 없습니다.")
+		return "", err
+	}
+	// if len(rest) > 0 {
+	// 	fmt.Println("경고: PEM 블록 뒤에 추가 데이터가 발견되었습니다.")
+	// }
+
+	// 인증서 파싱
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		// log.Printf("=================== 키 파일: %s\n", file)
+		// log.Printf("인증서 파싱 중 오류 발생: %v\n", err)
+		return "key", nil
+	}
+
+	// 인증서 정보 출력
+	// fmt.Println("주체:", cert.Subject)
+	// fmt.Println("발급자:", cert.Issuer)
+	// fmt.Println("유효 시작일:", cert.NotBefore)
+	// fmt.Println("유효 종료일:", cert.NotAfter)
+	// fmt.Println("일련 번호:", cert.SerialNumber)
+	// fmt.Println("DNS 이름들:", cert.DNSNames)
+
+	// CA 인증서 여부 확인
+	if cert.IsCA {
+		// fmt.Println("이 인증서는 CA 인증서입니다.")
+		// log.Printf("=================== ca 파일: %s\n", file)
+		return "ca", nil
+	} else {
+		// fmt.Println("이 인증서는 CA 인증서가 아닙니다.")
+		// log.Printf("=================== crt 파일: %s\n", file)
+		return "crt", nil
+	}
 }

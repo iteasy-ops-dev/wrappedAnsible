@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"iteasy.wrappedAnsible/pkg/utils"
 )
 
 func generateInitAnsible(v GennerateInitType) (iAnsible, error) {
@@ -133,15 +135,17 @@ func _setField(e *extendAnsible, key, value string) error {
 // Options.src_키_file 생성기
 // ansible roles 와의 파일 부분에 대한 옵션을 맞춰주는 함수
 // TODO: 에러 제어 필요
+// change_ssl일 경우 해당 파일의 인증서 여부를 검증하고
+// 각 변수를 할당
 func _generateOptionFileKey(filepath, extendAnsible_Type string) string {
 	switch extendAnsible_Type {
 	case "change_ssl":
-		switch {
-		case strings.Contains(filepath, "key"):
+		switch s, _ := utils.VerifySSL(filepath); s {
+		case "key":
 			return "src_key_file"
-		case strings.Contains(filepath, "crt"):
+		case "ca":
 			return "src_cert_file"
-		case strings.Contains(filepath, "chain"):
+		case "crt":
 			return "src_chain_file"
 		default:
 			return ""
