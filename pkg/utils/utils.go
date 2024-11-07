@@ -2,10 +2,13 @@ package utils
 
 import (
 	"bufio"
+	"crypto/ecdsa"
+	"crypto/rsa"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -206,50 +209,72 @@ func ParseJSONBody(body io.Reader, v interface{}) error {
 }
 
 func VerifySSL(file string) (string, error) {
-	// 인증서 파일 읽기
-	certPEM, err := os.ReadFile(file)
+	// 파일 읽기
+	data, err := os.ReadFile(file)
 	if err != nil {
-		// log.Printf("인증서 파일을 읽는 중 오류 발생: %v\n", err)
-		return "", err
+		return "", fmt.Errorf("failed to open file: %w", err)
 	}
 
 	// PEM 블록 디코드
-	// block, rest := pem.Decode(certPEM)
-	block, _ := pem.Decode(certPEM)
+	block, _ := pem.Decode(data)
 	if block == nil {
-		// fmt.Println("유효한 PEM 데이터가 없습니다.")
-		return "", err
+		return "", errors.New("invalid PEM data, cannot decode")
 	}
-	// if len(rest) > 0 {
-	// 	fmt.Println("경고: PEM 블록 뒤에 추가 데이터가 발견되었습니다.")
-	// }
 
-	// 인증서 파싱
-	cert, err := x509.ParseCertificate(block.Bytes)
-	if err != nil {
-		// log.Printf("=================== 키 파일: %s\n", file)
-		// log.Printf("인증서 파싱 중 오류 발생: %v\n", err)
+	switch block.Type {
+	case "PRIVATE KEY", "RSA PRIVATE KEY", "EC PRIVATE KEY":
+		// 키 파일 파싱
+		return _verifyKey(block.Bytes)
+	case "CERTIFICATE":
+		// 인증서 파일 파싱
+		return _verifyCertificate(block.Bytes)
+	default:
+		return "", fmt.Errorf("unknown PEM block type: %s", block.Type)
+	}
+}
+
+func _verifyKey(data []byte) (string, error) {
+	// 시도 1: PKCS8 포맷
+	key, err := x509.ParsePKCS8PrivateKey(data)
+	if err == nil {
+		switch key.(type) {
+		case *rsa.PrivateKey:
+			return "key", nil
+			// return "rsa key", nil
+		case *ecdsa.PrivateKey:
+			return "key", nil
+			// return "ecdsa key", nil
+		default:
+			return "", errors.New("unknown private key type")
+		}
+	}
+
+	// 시도 2: PKCS1 포맷 (RSA 전용)
+	if _, err := x509.ParsePKCS1PrivateKey(data); err == nil {
 		return "key", nil
+		// return "rsa key", nil
 	}
 
-	// 인증서 정보 출력
-	// fmt.Println("주체:", cert.Subject)
-	// fmt.Println("발급자:", cert.Issuer)
-	// fmt.Println("유효 시작일:", cert.NotBefore)
-	// fmt.Println("유효 종료일:", cert.NotAfter)
-	// fmt.Println("일련 번호:", cert.SerialNumber)
-	// fmt.Println("DNS 이름들:", cert.DNSNames)
+	// 시도 3: EC 키 포맷
+	if _, err := x509.ParseECPrivateKey(data); err == nil {
+		return "key", nil
+		// return "ecdsa key", nil
+	}
 
-	// CA 인증서 여부 확인
+	return "", errors.New("failed to parse private key")
+}
+
+func _verifyCertificate(data []byte) (string, error) {
+	// 인증서 파싱
+	cert, err := x509.ParseCertificate(data)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse certificate: %w", err)
+	}
+
 	if cert.IsCA {
-		// fmt.Println("이 인증서는 CA 인증서입니다.")
-		// log.Printf("=================== ca 파일: %s\n", file)
 		return "ca", nil
-	} else {
-		// fmt.Println("이 인증서는 CA 인증서가 아닙니다.")
-		// log.Printf("=================== crt 파일: %s\n", file)
-		return "crt", nil
 	}
+	return "crt", nil
 }
 
 // 파일을 읽고, 원하는 단어가 존재하는지 판별하는 함수

@@ -98,7 +98,11 @@ func parseMultipartRequest(v GennerateHttpRequestType) (iAnsible, error) {
 	}
 
 	for _, fp := range filePaths {
-		e.Options[_generateOptionFileKey(fp, e.Type)] = fp
+		k, err := _generateOptionFileKey(fp, e.Type)
+		if err != nil {
+			return nil, err
+		}
+		e.Options[k] = fp
 	}
 
 	return &e, nil
@@ -137,21 +141,21 @@ func _setField(e *extendAnsible, key, value string) error {
 // TODO: 에러 제어 필요
 // change_ssl일 경우 해당 파일의 인증서 여부를 검증하고
 // 각 변수를 할당
-func _generateOptionFileKey(filepath, extendAnsible_Type string) string {
+func _generateOptionFileKey(filepath, extendAnsible_Type string) (string, error) {
 	switch extendAnsible_Type {
 	case "change_ssl":
-		switch s, _ := utils.VerifySSL(filepath); s {
+		switch s, err := utils.VerifySSL(filepath); s {
 		case "key":
-			return "src_key_file"
+			return "src_key_file", nil
 		case "ca":
-			return "src_cert_file"
+			return "src_chain_file", nil
 		case "crt":
-			return "src_chain_file"
+			return "src_cert_file", nil
 		default:
-			return ""
+			return "", err
 		}
 
 	default:
-		return ""
+		return "", nil
 	}
 }
