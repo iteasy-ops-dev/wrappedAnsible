@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"bufio"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -249,4 +250,26 @@ func VerifySSL(file string) (string, error) {
 		// log.Printf("=================== crt 파일: %s\n", file)
 		return "crt", nil
 	}
+}
+
+// 파일을 읽고, 원하는 단어가 존재하는지 판별하는 함수
+func DoesThisFileContainThatWord(path, w string) bool {
+	r := false
+	f, err := os.Open(path)
+	if err != nil {
+		return r
+	}
+
+	s := bufio.NewScanner(f)
+	for s.Scan() {
+		// fmt.Println(s.Text())
+		if strings.Contains(s.Text(), w) {
+			r = true
+		}
+	}
+	if err := s.Err(); err != nil {
+		return r
+	}
+
+	return r
 }

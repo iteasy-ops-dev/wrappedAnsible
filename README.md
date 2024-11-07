@@ -144,6 +144,12 @@ config
 
 HISTORY
 ---------
+`24/11/07`
+- [ ] root 패스워드 관련 분기가 필요
+  - [ ] 해당 ansible에 관련하여 become 메소드를 su 로 변경할 경우
+  - [ ] map 형식으로 해당 타입의 메소드 여부를 확인
+  - [ ] util에 해당 함수 추가
+
 `24/09/20`
 - 이진주 매니저님
   - [x] erp 파싱 문제(https://admin.ksidc.net/service/request_info/?mem_idx=40396&idx=229099)
