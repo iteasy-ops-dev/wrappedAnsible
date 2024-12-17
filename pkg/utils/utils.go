@@ -123,9 +123,15 @@ func TruncationExtension(filename string) string {
 }
 
 // 확장자 체크
-func CheckExtension(filename, pattern string) bool {
+func CheckExtension(filename, extention string) bool {
 	// pattern이 확장자인지 확인하는 절차 필요
-	return strings.Contains(filename, pattern)
+	dotIndex := strings.LastIndex(filename, ".")
+
+	if dotIndex == -1 {
+		return false
+	}
+	return filename[dotIndex:] == extention
+	// return strings.Contains(filename, pattern)
 }
 
 func RemoveFile(path string) error {
