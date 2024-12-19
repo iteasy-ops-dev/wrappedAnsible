@@ -18,7 +18,7 @@ func RegisterHandlers(mux *http.ServeMux) {
 	// with JWT
 	mux.HandleFunc("/extend_extension", extendJWT)
 	mux.HandleFunc("/functions", functions)
-	mux.HandleFunc("/dashboad", dashboard)
+	mux.HandleFunc("/dashboard", dashboard)
 	mux.HandleFunc("/run", excuteAnsible)
 	mux.HandleFunc("/logs", logs)
 	mux.HandleFunc("/users", users)

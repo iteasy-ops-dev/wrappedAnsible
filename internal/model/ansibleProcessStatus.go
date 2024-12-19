@@ -101,11 +101,20 @@ func (a *AnsibleProcessStatusDocument) Get(filter bson.M, page int, pageSize int
 	return results, totalPages, nil
 }
 
-func (a *AnsibleProcessStatusDocument) Dashboard() (map[string]interface{}, error) {
+func (a *AnsibleProcessStatusDocument) Dashboard(startDate, endDate int64) (map[string]interface{}, error) {
 	col := a._collection()
 
+	matchStage := bson.D{
+		{Key: "$match", Value: bson.M{
+			"timestamp": bson.M{
+				"$gte": startDate, // 시작 날짜 이상
+				"$lte": endDate,   // 종료 날짜 이하
+			},
+		}},
+	}
 	// 전체 문서 통계 집계 파이프라인
 	overallPipeline := mongo.Pipeline{
+		matchStage,
 		{
 			{Key: "$group", Value: bson.M{
 				"_id":             nil,                                                                // 전체 문서 하나로 그룹화
@@ -121,6 +130,7 @@ func (a *AnsibleProcessStatusDocument) Dashboard() (map[string]interface{}, erro
 
 	// 타입별 문서 통계 집계 파이프라인
 	typePipeline := mongo.Pipeline{
+		matchStage,
 		{
 			{Key: "$group", Value: bson.M{
 				"_id":             "$type",                                                            // 타입별로 그룹화

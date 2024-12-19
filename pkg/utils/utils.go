@@ -17,6 +17,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/exp/rand"
@@ -157,7 +158,6 @@ func SendEmail(to, subject, mailBody string) error {
 		[]string{to},
 		[]byte(msg),
 	)
-
 	if err != nil {
 		log.Printf("메일 전송 실패: %v\n", err)
 		return err
@@ -303,4 +303,21 @@ func DoesThisFileContainThatWord(path, w string) bool {
 	}
 
 	return r
+}
+
+func DateToUnixtime(date string) int64 {
+	t, _ := time.Parse(time.RFC3339, date)
+	return t.Unix()
+}
+
+func EndOfDay(date string) int64 {
+	ut := DateToUnixtime(date)
+	t := time.Unix(ut, 0).UTC()
+	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, t.Location()).Unix()
+}
+
+func StartOfDay(date string) int64 {
+	ut := DateToUnixtime(date)
+	t := time.Unix(ut, 0).UTC()
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
 }

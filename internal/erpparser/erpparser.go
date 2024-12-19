@@ -14,7 +14,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-// TODO: 현재 webhost manager에만 맞는 구조체임
+// TODO: 현재 webhost manage에만 맞는 구조체임
 // TODO: 확장이 필요함.
 // TODO: 아래 코드 테스트 후 윗 주석 코드 날리면 됨
 type Info struct {
