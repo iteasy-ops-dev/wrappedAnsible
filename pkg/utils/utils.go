@@ -312,12 +312,12 @@ func DateToUnixtime(date string) int64 {
 
 func EndOfDay(date string) int64 {
 	ut := DateToUnixtime(date)
-	t := time.Unix(ut, 0).UTC()
+	t := time.Unix(ut, 0)
 	return time.Date(t.Year(), t.Month(), t.Day(), 23, 59, 59, 0, t.Location()).Unix()
 }
 
 func StartOfDay(date string) int64 {
 	ut := DateToUnixtime(date)
-	t := time.Unix(ut, 0).UTC()
+	t := time.Unix(ut, 0)
 	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
 }
