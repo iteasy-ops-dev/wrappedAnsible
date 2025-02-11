@@ -46,8 +46,17 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 # ENV LC_ALL=C.UTF-8
 
 # Install necessary packages including locales-all
-RUN apt-get update && \
-    apt-get install -y \
+# RUN apt-get clean && \
+#     rm -rf /var/lib/apt/lists/* && \
+#     apt-get update --fix-missing && \
+#     apt-get install -y --no-install-recommends \
+#     gcc python3 python3-pip curl net-tools vim git openssh-server sshpass locales-all && \
+#     apt-get clean && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update 
+RUN apt-get clean
+RUN apt-get update 
+RUN apt-get upgrade -y
+RUN apt-get install -y \
     gcc \
     python3 \
     python3-pip \
@@ -57,8 +66,8 @@ RUN apt-get update && \
     git \
     openssh-server \
     sshpass \
-    locales-all && \
-    apt-get clean && \
+    locales-all
+RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
 # Set locale environment variables

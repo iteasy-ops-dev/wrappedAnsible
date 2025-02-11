@@ -60,24 +60,31 @@ func NewAuth(ctx context.Context) *Auth {
 func (a *Auth) SetEmail(s string) {
 	a.Email = s
 }
+
 func (a *Auth) SetName(s string) {
 	a.Name = s
 }
+
 func (a *Auth) SetPassword(s string) {
 	a.Password = s
 }
+
 func (a *Auth) SetVerified(b bool) {
 	a.Verified = b
 }
+
 func (a *Auth) SetActive(b bool) {
 	a.IsActive = b
 }
+
 func (a *Auth) SetIsAdmin(b bool) {
 	a.IsAdmin = b
 }
+
 func (a *Auth) SetInitAccessLog() {
 	a.AccessLog = []AccessLog{}
 }
+
 func (a *Auth) SetVerificationToken(token string) {
 	a.VerificationToken = token
 }
@@ -155,27 +162,7 @@ func (a *Auth) VerifyEmail() error {
 
 func (a *Auth) Get(filter bson.M, page int, pageSize int) ([]AuthReq, int, error) {
 	col := a._collection()
-	// filter := bson.M{}
-	// if a.Email != "" {
-	// 	filter["email"] = a.Email
-	// }
 
-	// sort := bson.M{"AtCreateDate": 1}
-	// if a.isDesc {
-	// 	sort = bson.M{"AtCreateDate": -1}
-	// }
-
-	// cursor, err := col.Find(a.ctx, filter, options.Find().SetSort(sort))
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// var results []AuthReq
-	// if err := cursor.All(a.ctx, &results); err != nil {
-	// 	return nil, err
-	// }
-
-	// return results, nil
 	// 페이지 번호와 페이지 크기 검증
 	if page < 1 {
 		page = 1
@@ -189,8 +176,11 @@ func (a *Auth) Get(filter bson.M, page int, pageSize int) ([]AuthReq, int, error
 
 	// 정렬 옵션 추가
 	sortOptions := bson.D{
-		{Key: "timestamp", Value: -1}, // timestamp 내림차순
+		{Key: "_id", Value: 1}, // name 오름차순
 	}
+
+	// admin 제외 필터 추가
+	filter["isAdmin"] = false
 
 	// 데이터 조회
 	cursor, err := col.Find(
@@ -221,6 +211,55 @@ func (a *Auth) Get(filter bson.M, page int, pageSize int) ([]AuthReq, int, error
 
 	return results, totalPages, nil
 }
+
+// func (a *Auth) Get(filter bson.M, page int, pageSize int) ([]AuthReq, int, error) {
+// 	col := a._collection()
+
+// 	// 페이지 번호와 페이지 크기 검증
+// 	if page < 1 {
+// 		page = 1
+// 	}
+// 	if pageSize < 1 {
+// 		pageSize = 10 // 기본값 설정
+// 	}
+
+// 	// Skip 및 Limit 설정
+// 	skip := (page - 1) * pageSize
+
+// 	// 정렬 옵션 추가
+// 	sortOptions := bson.D{
+// 		{Key: "name", Value: 1}, // name 오름차순
+// 	}
+
+// 	// 데이터 조회
+// 	cursor, err := col.Find(
+// 		context.Background(),
+// 		filter,
+// 		options.Find().
+// 			SetSkip(int64(skip)).
+// 			SetLimit(int64(pageSize)).
+// 			SetSort(sortOptions), // 정렬 옵션 설정
+// 	)
+// 	if err != nil {
+// 		return nil, 0, err
+// 	}
+
+// 	// 커서를 디코딩하여 결과 반환
+// 	results, err := DecodeCursor[AuthReq](cursor)
+// 	if err != nil {
+// 		return nil, 0, err
+// 	}
+
+// 	// 전체 데이터 수 조회
+// 	totalCount, err := col.CountDocuments(context.Background(), filter)
+// 	if err != nil {
+// 		return nil, 0, err
+// 	}
+
+// 	totalPages := int((totalCount + int64(pageSize) - 1) / int64(pageSize)) // 총 페이지 수 계산
+
+// 	return results, totalPages, nil
+// }
 
 func (a *Auth) UpdateUserActive(s bool) error {
 	filter := bson.M{"email": a.Email}
